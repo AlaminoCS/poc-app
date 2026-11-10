@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hábitos — POC diária",
+  title: "Hábitos",
   description:
-    "Laboratório de hábitos diários com Next.js, NestJS, Neon e OTP por e-mail.",
+    "Projeto de hábitos diários, sem uso comercial. Cadastre hábitos, marque o dia e acompanhe streaks — use à vontade.",
 };
 
 export default function RootLayout({

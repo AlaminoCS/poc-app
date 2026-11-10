@@ -36,7 +36,7 @@ export default function HomePage() {
         }}
       >
         <p className="muted" style={{ margin: 0, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.8rem" }}>
-          POC lab · engenharia com agentes de IA
+          Projeto de hábitos · sem uso comercial
         </p>
         <h1
           className="brand"
@@ -46,10 +46,10 @@ export default function HomePage() {
             lineHeight: 0.95,
           }}
         >
-          Consistência diária com segurança de verdade.
+          Consistência diária, do seu jeito.
         </h1>
         <p className="muted" style={{ margin: 0, fontSize: "1.15rem", maxWidth: 560 }}>
-          Cadastre hábitos, marque o dia e acompanhe streaks. Login com Argon2id + pepper e OTP por e-mail a cada acesso.
+          Cadastre hábitos, marque o dia e acompanhe streaks. É um projeto aberto, sem fins comerciais — use à vontade.
         </p>
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
           <Link className="btn btn-primary pulse-glow" href="/register">
