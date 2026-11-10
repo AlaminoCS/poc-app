@@ -3,7 +3,7 @@
 Aplicação de hábitos diários usada como **laboratório de engenharia com agentes de IA** (Cursor). O objetivo não é só “um CRUD online”: é deixar auditável *como* humano e agente colaboraram, quais decisões foram tomadas e por que certas medidas de arquitetura/segurança valem a pena.
 
 **Stack:** Next.js · NestJS · Prisma · Neon · Resend · Docker · Vercel  
-**Repo:** [AlaminoCS/poc-app](https://github.com/AlaminoCS/poc-app) · **Web:** [poc-app-drab.vercel.app](https://poc-app-drab.vercel.app)
+**Repo:** [AlaminoCS/poc-app](https://github.com/AlaminoCS/poc-app) · **Web:** [poc.alamino.dev.br](https://poc.alamino.dev.br)
 
 ## Para quem analisa este repositório
 
@@ -117,5 +117,5 @@ Ver [`.env.example`](.env.example). Nada sensível no git.
 | Peça | Status |
 |------|--------|
 | Neon `poc-habits` | Branch principal com schema e dados de smoke (users / habits / challenges) |
-| Vercel web | Projeto importado de `AlaminoCS/poc-app` → [poc-app-drab.vercel.app](https://poc-app-drab.vercel.app) |
+| Vercel web | Projeto importado de `AlaminoCS/poc-app` → [poc.alamino.dev.br](https://poc.alamino.dev.br) (`poc-app-drab.vercel.app`) |
 | API pública | Ainda via Docker local; apontar `NEXT_PUBLIC_API_URL` para um host público quando a API estiver exposta |
