@@ -36,7 +36,7 @@ export default function HomePage() {
         }}
       >
         <p className="muted" style={{ margin: 0, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.8rem" }}>
-          POC lab · recrutadores · agentes de IA
+          POC lab · engenharia com agentes de IA
         </p>
         <h1
           className="brand"

@@ -1,6 +1,6 @@
 # AGENTS.md — Hábitos POC
 
-Instruções operacionais para agentes de IA neste repositório. Recrutadores: este arquivo é parte do laboratório de colaboração humano + agente.
+Instruções operacionais para agentes de IA neste repositório. Quem analisa o repo: este arquivo é parte do laboratório de colaboração humano + agente.
 
 ## Objetivo do produto
 
@@ -26,7 +26,7 @@ POC de **hábitos diários** com autenticação e-mail/senha (Argon2id + pepper)
 1. Ler `CONTEXT.md` antes de mudanças amplas
 2. Preferir commits semânticos pequenos (`feat:`, `fix:`, `docs:`, `chore:`)
 3. Atualizar `docs/LAB.md` quando houver decisão de trade-off relevante
-4. Manter PT-BR em UI e docs voltados a recrutador
+4. Manter PT-BR em UI e docs voltados a quem analisa o repositório
 5. Não editar o arquivo de plano em `.cursor/plans`
 
 ## Checklist antes de considerar pronto

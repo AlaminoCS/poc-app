@@ -4,7 +4,7 @@
 
 Aplicação de **lista de tarefas/hábitos diários**: o usuário cadastra hábitos, marca o dia e acompanha streak.
 
-Público desta POC: **recrutadores** avaliando capacidade de orquestrar agentes de IA, arquitetura e segurança prática.
+Público desta POC: **quem analisa o repositório** (revisão técnica, portfólio, avaliação de processo) — foco em orquestração de agentes de IA, arquitetura e segurança prática.
 
 ## Stack
 

@@ -1,41 +1,51 @@
 # LAB.md — Diário do laboratório com agentes
 
-POC construída como evidência de colaboração humano + agente (Cursor) para recrutadores.
+POC construída como evidência de colaboração **humano + agente** (Cursor). Destinada a quem analisa o repositório: revisão técnica, portfólio ou avaliação de processo.
 
 ## Contexto
 
 - Repo inicial: `poc-app` vazio (`# poc-app`)
-- Objetivo: hábitos diários + auth segura + Neon + Vercel + narrativa de processo
+- Objetivo: hábitos diários + auth segura + Neon + Vercel + narrativa de processo auditável
+- Regra de ouro: intenção e restrições ficam no humano; execução e consistência no agente; decisões viram arquivos no git
 
 ## Decisões tomadas com o agente
 
-| Decisão | Por quê |
-|---------|--------|
-| Monorepo pnpm + Turborepo | Separar web/api/db/shared sem perder tipagem |
-| Nest modular + repositories | Evitar procedural; DI e camadas claras |
-| Argon2id + pepper | Demo de defesa em profundidade no hash |
-| OTP a cada login (Resend) | Requisito explícito da POC para segurança visível |
-| Prisma migrations | Histórico auditável; `migrate deploy` no Docker |
-| AGENTS.md + CONTEXT.md + rules | Agentes futuros herdam o mesmo contrato |
+| Decisão | Por quê | Vantagem |
+|---------|--------|----------|
+| Monorepo pnpm + Turborepo | Separar web/api/db/shared sem perder tipagem | Menos drift de contratos entre camadas |
+| Nest modular + repositories | Evitar procedural; DI e camadas claras | Código legível para humanos e agentes |
+| Argon2id + pepper | Defesa em profundidade no hash | Banco vazado ≠ senhas prontas |
+| OTP a cada login (Resend) | Requisito explícito da POC | Segundo fator demonstrável sem app MFA |
+| Prisma migrations | Histórico versionado | Deploy previsível (`migrate deploy`) |
+| AGENTS.md + CONTEXT.md + rules | Contrato persistente para o agente | Reproduzibilidade da colaboração |
 
 ## Fluxo de trabalho observado
 
-1. Planejamento em modo Plan (escopo, auth, deploy)
-2. Bootstrap do monorepo e artefatos de lab
+1. Planejamento em modo Plan (escopo, auth, deploy, artefatos de lab)
+2. Bootstrap do monorepo e regras Cursor
 3. Auth + OTP + Habits
 4. Neon (`poc-habits`) + migrations
 5. Docs/diagramas + deploy Vercel/Docker
+6. Ajuste de linguagem dos docs: de “recrutadores” para **quem analisa o repositório**
+
+## O que a interação humano ↔ agente mostrou na prática
+
+- Escopo fechado antes do código evita refatoração ampla no meio da POC
+- Contrato em `AGENTS.md` impede o agente de “inventar” arquitetura (ex.: procedural em controller)
+- Smoke real (Neon + OTP Resend + Docker) surfaca limites de plataforma cedo (domínio Resend, API pública vs localhost)
+- Docs e diagramas versionados transformam a sessão em artefato revisável, não só histórico de chat
 
 ## Trade-offs conscientes
 
 - OTP a cada login piora UX; ótimo para demo de segurança
 - Nest em Docker (não serverless) mantém cookie/sessão previsíveis
 - Tema vibrante customizado (sem visual “IA genérico”)
+- Front na Vercel pode ir ao ar antes da API pública; `NEXT_PUBLIC_API_URL` precisa apontar para host alcançável
 
-## Como um recrutador deve ler este repo
+## Roteiro de leitura sugerido
 
-1. `README.md` — o que é e como rodar
-2. `AGENTS.md` / `CONTEXT.md` — contrato do agente
+1. `README.md` — o que é, como rodamos e por que as medidas
+2. `AGENTS.md` / `CONTEXT.md` — contrato do agente e do produto
 3. `docs/architecture.excalidraw` — arquitetura visual
 4. `docs/SECURITY.md` — modelo de ameaça resumido
 5. Histórico git — commits semânticos pequenos
