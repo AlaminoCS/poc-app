@@ -22,3 +22,7 @@
 ## Segredos
 
 Nunca commitados. Ver `.env.example`. Em produção: secrets da Vercel (web) + host da API Docker.
+
+## Resend (lab)
+
+Sem domínio verificado, o Resend só entrega OTP para o e-mail da conta (ex.: `alamino.code.solutions@gmail.com`). Para destinatários arbitrários, verifique um domínio em [resend.com/domains](https://resend.com/domains) e ajuste `RESEND_FROM`.

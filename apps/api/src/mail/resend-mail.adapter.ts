@@ -1,10 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Resend } from "resend";
 import { MailMessage, MailPort } from "./mail.port";
 
 @Injectable()
 export class ResendMailAdapter implements MailPort {
+  private readonly logger = new Logger(ResendMailAdapter.name);
   private readonly client: Resend;
   private readonly from: string;
 
@@ -23,7 +24,10 @@ export class ResendMailAdapter implements MailPort {
     });
 
     if (result.error) {
-      throw new Error(result.error.message);
+      this.logger.error(result.error.message);
+      throw new ServiceUnavailableException(
+        `Falha ao enviar e-mail OTP: ${result.error.message}`,
+      );
     }
   }
 }

@@ -3,7 +3,7 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json tsconfig.base.json ./
 COPY packages/db/package.json packages/db/
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
@@ -14,15 +14,15 @@ COPY packages/shared packages/shared
 COPY packages/db packages/db
 COPY apps/api apps/api
 COPY .env.example ./.env.example
+ENV DATABASE_URL="postgresql://poc:poc@localhost:5432/poc_habits?schema=public"
+ENV DIRECT_URL="postgresql://poc:poc@localhost:5432/poc_habits?schema=public"
 RUN pnpm --filter @poc/shared build \
   && pnpm --filter @poc/db generate \
-  && pnpm --filter @poc/db build \
   && pnpm --filter @poc/api build
 
 FROM base AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /app /app
-WORKDIR /app/apps/api
 EXPOSE 3001
-CMD ["sh", "-c", "pnpm --filter @poc/db migrate:deploy && node dist/main.js"]
+CMD ["sh", "-c", "cd /app/packages/db && pnpm exec prisma migrate deploy && cd /app/apps/api && node dist/main.js"]
