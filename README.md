@@ -61,6 +61,11 @@ Ver [`.env.example`](.env.example). Segredos nunca vão para o git.
 
 ## Deploy
 
-- **Web:** Vercel apontando para `apps/web` (monorepo)
-- **API:** imagem Docker (`apps/api/Dockerfile`) com `prisma migrate deploy` no boot
-- **DB:** projeto Neon `poc-habits`
+- **Web:** Vercel → Import `AlaminoCS/poc-app` → Root Directory `apps/web`
+  - Install: `cd ../.. && pnpm install`
+  - Build: `cd ../.. && pnpm --filter @poc/shared build && pnpm --filter @poc/web build`
+  - Env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_APP_URL`
+- **API:** `docker compose up --build api` (Neon via `DATABASE_URL` / `DIRECT_URL`)
+- **DB:** Neon project `poc-habits` (São Paulo) + migration `init_habits`
+
+> Sem domínio verificado no Resend, OTP só chega em `alamino.code.solutions@gmail.com`.

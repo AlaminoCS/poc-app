@@ -13,3 +13,7 @@ apps/api/uploads
 packages/db/prisma/generated
 .vercel
 *.tsbuildinfo
+cookies.txt
+tmp-*.json
+scripts/set-otp.mjs
+scripts/smoke.mjs
