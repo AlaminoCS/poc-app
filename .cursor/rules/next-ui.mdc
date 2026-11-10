@@ -1,0 +1,11 @@
+---
+description: Convenções Next.js UI do monorepo Hábitos POC
+globs: apps/web/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+- App Router; Server Components por padrão; Client Components só com interação
+- Chamadas HTTP via `src/lib/api`; não espalhar fetch nas pages
+- Tema vibrante com CSS variables; evitar visual genérico purple-on-white
+- Textos e labels em PT-BR
+- Motion leve e intencional (2–3 animações), sem ruído

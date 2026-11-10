@@ -1,0 +1,18 @@
+{
+  "name": "poc-app",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db:generate": "pnpm --filter @poc/db generate",
+    "db:migrate": "pnpm --filter @poc/db migrate:dev",
+    "db:deploy": "pnpm --filter @poc/db migrate:deploy",
+    "db:studio": "pnpm --filter @poc/db studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  }
+}

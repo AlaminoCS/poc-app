@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="320" viewBox="0 0 780 320" role="img" aria-label="Arquitetura Habitos POC">
+  <rect width="780" height="320" fill="#0b1020"/>
+  <text x="40" y="40" fill="#f4f7ff" font-family="Segoe UI, Arial" font-size="22" font-weight="700">Habitos POC  Arquitetura</text>
+  <rect x="40" y="70" width="180" height="90" rx="16" fill="#2a4b8d"/>
+  <text x="70" y="122" fill="#fff" font-family="Segoe UI, Arial" font-size="16">Next.js (Vercel)</text>
+  <rect x="300" y="70" width="180" height="90" rx="16" fill="#5b3d99"/>
+  <text x="330" y="122" fill="#fff" font-family="Segoe UI, Arial" font-size="16">NestJS (Docker)</text>
+  <rect x="560" y="50" width="180" height="70" rx="16" fill="#1f6b5a"/>
+  <text x="585" y="92" fill="#fff" font-family="Segoe UI, Arial" font-size="15">Neon Postgres</text>
+  <rect x="560" y="140" width="180" height="70" rx="16" fill="#8a5a1f"/>
+  <text x="600" y="182" fill="#fff" font-family="Segoe UI, Arial" font-size="15">Resend OTP</text>
+  <path d="M220 115 H300" stroke="#7CFFB2" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M480 100 H560" stroke="#7CFFB2" stroke-width="3"/>
+  <path d="M480 140 H560" stroke="#FFD166" stroke-width="3"/>
+  <rect x="40" y="230" width="700" height="60" rx="14" fill="#1a2338" stroke="#FF4D6D"/>
+  <text x="60" y="266" fill="#D7DEFF" font-family="Segoe UI, Arial" font-size="15">Login: senha ’ OTP hash ’ Resend ’ verify ’ JWT cookie</text>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#7CFFB2"/>
+    </marker>
+  </defs>
+</svg>

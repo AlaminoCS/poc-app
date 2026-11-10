@@ -1,0 +1,10 @@
+---
+description: Regras de segurança de autenticação da POC
+globs: apps/api/src/auth/**/*.ts,apps/api/src/mail/**/*.ts
+alwaysApply: false
+---
+
+- Sempre Argon2id + PASSWORD_PEPPER; nunca bcrypt “solto” sem pepper nesta POC
+- OTP só como hash no banco; nunca logar o código em claro
+- Cookie access_token HttpOnly; Secure em produção
+- Não commitiar .env nem chaves Resend/JWT/pepper

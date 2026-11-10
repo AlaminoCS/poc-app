@@ -1,0 +1,124 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://github.com/AlaminoCS/poc-app",
+  "elements": [
+    {
+      "type": "text",
+      "id": "title",
+      "x": 180,
+      "y": 20,
+      "width": 420,
+      "height": 35,
+      "text": "Habitos POC — Arquitetura",
+      "fontSize": 28,
+      "strokeColor": "#1e1e1e"
+    },
+    {
+      "type": "rectangle",
+      "id": "web",
+      "x": 70,
+      "y": 140,
+      "width": 160,
+      "height": 80,
+      "backgroundColor": "#a5d8ff",
+      "fillStyle": "solid",
+      "strokeColor": "#1e1e1e",
+      "roundness": { "type": 3 },
+      "label": { "text": "Next.js Web\n(Vercel)", "fontSize": 16 }
+    },
+    {
+      "type": "rectangle",
+      "id": "api",
+      "x": 330,
+      "y": 140,
+      "width": 160,
+      "height": 80,
+      "backgroundColor": "#d0bfff",
+      "fillStyle": "solid",
+      "strokeColor": "#1e1e1e",
+      "roundness": { "type": 3 },
+      "label": { "text": "NestJS API\n(Docker)", "fontSize": 16 }
+    },
+    {
+      "type": "rectangle",
+      "id": "neon",
+      "x": 580,
+      "y": 110,
+      "width": 160,
+      "height": 70,
+      "backgroundColor": "#c3fae8",
+      "fillStyle": "solid",
+      "strokeColor": "#1e1e1e",
+      "roundness": { "type": 3 },
+      "label": { "text": "Neon Postgres", "fontSize": 16 }
+    },
+    {
+      "type": "rectangle",
+      "id": "resend",
+      "x": 580,
+      "y": 210,
+      "width": 160,
+      "height": 70,
+      "backgroundColor": "#ffd8a8",
+      "fillStyle": "solid",
+      "strokeColor": "#1e1e1e",
+      "roundness": { "type": 3 },
+      "label": { "text": "Resend OTP", "fontSize": 16 }
+    },
+    {
+      "type": "arrow",
+      "id": "a1",
+      "x": 230,
+      "y": 180,
+      "width": 100,
+      "height": 0,
+      "points": [[0, 0], [100, 0]],
+      "endArrowhead": "arrow",
+      "label": { "text": "HTTPS", "fontSize": 14 }
+    },
+    {
+      "type": "arrow",
+      "id": "a2",
+      "x": 490,
+      "y": 160,
+      "width": 90,
+      "height": 0,
+      "points": [[0, 0], [90, 0]],
+      "endArrowhead": "arrow",
+      "label": { "text": "Prisma", "fontSize": 14 }
+    },
+    {
+      "type": "arrow",
+      "id": "a3",
+      "x": 490,
+      "y": 200,
+      "width": 90,
+      "height": 40,
+      "points": [[0, 0], [90, 40]],
+      "endArrowhead": "arrow",
+      "label": { "text": "email", "fontSize": 14 }
+    },
+    {
+      "type": "rectangle",
+      "id": "flow",
+      "x": 70,
+      "y": 340,
+      "width": 670,
+      "height": 100,
+      "backgroundColor": "#fff3bf",
+      "fillStyle": "solid",
+      "strokeColor": "#f59e0b",
+      "roundness": { "type": 3 },
+      "label": {
+        "text": "Login: senha -> OTP hash -> Resend -> verify -> JWT cookie",
+        "fontSize": 18
+      }
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}

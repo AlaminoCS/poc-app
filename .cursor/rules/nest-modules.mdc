@@ -1,0 +1,11 @@
+---
+description: Convenções NestJS do monorepo Hábitos POC
+globs: apps/api/**/*.ts
+alwaysApply: false
+---
+
+- Controllers apenas orquestram HTTP; regras ficam em Services
+- Persistência via Repositories injetáveis; não chamar Prisma direto no controller
+- Preferir ports/adapters para integrações (ex.: MailPort)
+- DTOs com class-validator; ValidationPipe global já está ativo
+- Evitar código procedural longo; extrair collaborators nomeados

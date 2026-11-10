@@ -1,0 +1,41 @@
+{
+  "name": "@poc/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.2",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.2",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.2",
+    "@poc/db": "workspace:*",
+    "@poc/shared": "workspace:*",
+    "argon2": "^0.43.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "cookie-parser": "^1.4.7",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.2",
+    "resend": "^4.5.1",
+    "rxjs": "^7.8.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.7",
+    "@nestjs/schematics": "^11.0.5",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.21",
+    "@types/passport-jwt": "^4.0.1",
+    "typescript": "^5.8.3"
+  }
+}
