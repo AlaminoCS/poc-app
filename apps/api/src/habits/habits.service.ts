@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Habit, HabitCheckIn } from "@poc/db";
+import type { Habit, HabitCheckIn } from "@prisma/client";
 import { HabitsRepository } from "./habits.repository";
 
 type HabitWithCheckIns = Habit & { checkIns: HabitCheckIn[] };

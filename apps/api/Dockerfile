@@ -19,6 +19,7 @@ ENV DATABASE_URL="postgresql://poc:poc@localhost:5432/poc_habits?schema=public"
 ENV DIRECT_URL="postgresql://poc:poc@localhost:5432/poc_habits?schema=public"
 RUN pnpm --filter @poc/shared build \
   && pnpm --filter @poc/db generate \
+  && pnpm --filter @poc/db build \
   && pnpm --filter @poc/api build
 
 FROM base AS runner
