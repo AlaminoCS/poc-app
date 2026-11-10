@@ -41,6 +41,9 @@ importers:
       '@poc/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@prisma/client':
+        specifier: ^6.8.2
+        version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
       argon2:
         specifier: ^0.43.0
         version: 0.43.1
