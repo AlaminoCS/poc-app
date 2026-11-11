@@ -101,7 +101,8 @@ Ver [`.env.example`](.env.example). Nada sensível no git.
 | `COOKIE_SECURE` | API | `true` em HTTPS |
 
 > Sem domínio verificado no Resend, OTP de teste só chega no e-mail da conta Resend.  
-> A API em produção precisa de URL pública; `NEXT_PUBLIC_API_URL=http://localhost:3001` só serve para smoke local com a API rodando na sua máquina.
+> Em produção o front usa same-origin (`NEXT_PUBLIC_API_URL` vazio) e o rewrite `/api/*` → Nest, eliminando CORS no browser.  
+> E2E: `ALLOW_TEST_OTP=true` + `pnpm test:e2e` (Playwright sobe web+api).
 
 ## Deploy
 

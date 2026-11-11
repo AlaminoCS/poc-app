@@ -64,7 +64,7 @@ export class AuthService {
 
     await this.mail.send({
       to: user.email,
-      subject: "Seu código de acesso — Hábitos POC",
+      subject: "Seu código de acesso — Hábitos",
       text: `Seu código OTP é ${code}. Ele expira em poucos minutos.`,
       html: `
         <div style="font-family:Segoe UI,Arial,sans-serif;padding:24px;background:#0B1020;color:#fff">
@@ -76,10 +76,13 @@ export class AuthService {
       `,
     });
 
+    const allowTestOtp = (this.config.get("ALLOW_TEST_OTP") ?? "false") === "true";
+
     return {
       challengeId: challenge.id,
       expiresAt: challenge.expiresAt.toISOString(),
       message: "Enviamos um código OTP para o seu e-mail.",
+      ...(allowTestOtp ? { debugOtp: code } : {}),
     };
   }
 

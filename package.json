@@ -9,9 +9,12 @@
     "db:generate": "pnpm --filter @poc/db generate",
     "db:migrate": "pnpm --filter @poc/db migrate:dev",
     "db:deploy": "pnpm --filter @poc/db migrate:deploy",
-    "db:studio": "pnpm --filter @poc/db studio"
+    "db:studio": "pnpm --filter @poc/db studio",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   }

@@ -55,6 +55,8 @@ export type AuthChallengeResponse = {
   challengeId: string;
   expiresAt: string;
   message: string;
+  /** Só presente quando ALLOW_TEST_OTP=true (E2E/local). */
+  debugOtp?: string;
 };
 
 export type AuthUserResponse = {

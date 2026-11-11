@@ -24,6 +24,7 @@ RUN pnpm --filter @poc/shared build \
 
 FROM base AS runner
 ENV NODE_ENV=production
+ENV PORT=3001
 WORKDIR /app
 COPY --from=build /app /app
 EXPOSE 3001

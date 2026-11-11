@@ -8,6 +8,7 @@ type Challenge = {
   challengeId: string;
   expiresAt: string;
   email: string;
+  debugOtp?: string;
 };
 
 export function OtpForm() {
@@ -23,7 +24,11 @@ export function OtpForm() {
       router.replace("/login");
       return;
     }
-    setChallenge(JSON.parse(raw) as Challenge);
+    const parsed = JSON.parse(raw) as Challenge;
+    setChallenge(parsed);
+    if (parsed.debugOtp) {
+      setCode(parsed.debugOtp);
+    }
   }, [router]);
 
   async function onSubmit(event: FormEvent) {
@@ -47,13 +52,19 @@ export function OtpForm() {
   }
 
   return (
-    <form className="panel fade-up" onSubmit={onSubmit} style={{ padding: "1.75rem", display: "grid", gap: "1rem" }}>
+    <form
+      className="panel fade-up"
+      onSubmit={onSubmit}
+      style={{ padding: "1.75rem", display: "grid", gap: "1rem" }}
+      data-testid="otp-form"
+    >
       <div>
         <h1 className="brand" style={{ margin: "0 0 0.35rem", fontSize: "2rem" }}>
           Código OTP
         </h1>
         <p className="muted" style={{ margin: 0 }}>
-          Enviamos um código de 6 dígitos para <strong style={{ color: "var(--ink)" }}>{challenge.email}</strong>.
+          Enviamos um código de 6 dígitos para{" "}
+          <strong style={{ color: "var(--ink)" }}>{challenge.email}</strong>.
         </p>
       </div>
 
@@ -68,12 +79,22 @@ export function OtpForm() {
           onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
           placeholder="000000"
           style={{ letterSpacing: "0.35em", fontSize: "1.4rem", fontWeight: 700 }}
+          data-testid="otp-code"
         />
       </label>
 
-      {error ? <p style={{ margin: 0, color: "#FF8FA3" }}>{error}</p> : null}
+      {error ? (
+        <p style={{ margin: 0, color: "#FF8FA3" }} data-testid="otp-error">
+          {error}
+        </p>
+      ) : null}
 
-      <button className="btn btn-primary" disabled={loading || code.length !== 6} type="submit">
+      <button
+        className="btn btn-primary"
+        disabled={loading || code.length !== 6}
+        type="submit"
+        data-testid="otp-submit"
+      >
         {loading ? "Validando..." : "Confirmar acesso"}
       </button>
     </form>

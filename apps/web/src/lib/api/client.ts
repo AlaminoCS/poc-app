@@ -9,8 +9,16 @@ import type {
   VerifyOtpInput,
 } from "@poc/shared";
 
+/**
+ * Em produção usamos URL relativa (same-origin) para evitar CORS:
+ * o Next faz rewrite de `/api/*` para a API Nest (API_URL).
+ * Em dev, NEXT_PUBLIC_API_URL=http://localhost:3001 continua válido.
+ */
+const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:3001";
+  configured === "" || configured === "/"
+    ? ""
+    : configured;
 
 async function request<T>(
   path: string,

@@ -113,11 +113,18 @@ export function HabitsBoard() {
         className="panel fade-up"
         onSubmit={onCreate}
         style={{ padding: "1.25rem", display: "grid", gap: "0.85rem", animationDelay: "60ms" }}
+        data-testid="habit-create-form"
       >
         <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>Novo hábito</h2>
         <label className="field">
           <span>Título</span>
-          <input required maxLength={80} value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input
+            required
+            maxLength={80}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            data-testid="habit-title"
+          />
         </label>
         <label className="field">
           <span>Descrição</span>
@@ -147,7 +154,7 @@ export function HabitsBoard() {
           ))}
         </div>
         {error ? <p style={{ margin: 0, color: "#FF8FA3" }}>{error}</p> : null}
-        <button className="btn btn-primary" type="submit">
+        <button className="btn btn-primary" type="submit" data-testid="habit-submit">
           Adicionar
         </button>
       </form>
@@ -175,6 +182,8 @@ export function HabitsBoard() {
                 type="button"
                 disabled={busyId === habit.id}
                 onClick={() => void onToggle(habit.id)}
+                data-testid={`habit-toggle-${habit.id}`}
+                aria-label={`Marcar ${habit.title}`}
                 style={{
                   width: 46,
                   height: 46,
@@ -190,7 +199,12 @@ export function HabitsBoard() {
                 {habit.checkedToday ? "✓" : ""}
               </button>
               <div>
-                <h3 style={{ margin: 0, fontFamily: "var(--font-display)" }}>{habit.title}</h3>
+                <h3
+                  style={{ margin: 0, fontFamily: "var(--font-display)" }}
+                  data-testid={`habit-item-${habit.id}`}
+                >
+                  {habit.title}
+                </h3>
                 {habit.description ? (
                   <p className="muted" style={{ margin: "0.25rem 0 0", fontSize: "0.92rem" }}>
                     {habit.description}

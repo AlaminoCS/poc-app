@@ -40,7 +40,8 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - OTP a cada login piora UX; ótimo para demo de segurança
 - Nest em Docker (não serverless) mantém cookie/sessão previsíveis
 - Tema vibrante customizado (sem visual “IA genérico”)
-- Front na Vercel pode ir ao ar antes da API pública; `NEXT_PUBLIC_API_URL` precisa apontar para host alcançável
+- Front chama `/api` same-origin (rewrite) para evitar CORS; Nest precisa estar no mesmo deploy (Vercel Services) ou em `API_URL` alcançável pelo Next
+- `ALLOW_TEST_OTP=true` só para E2E/local — nunca em produção pública
 
 ## Roteiro de leitura sugerido
 
