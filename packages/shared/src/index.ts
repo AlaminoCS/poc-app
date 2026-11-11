@@ -20,6 +20,21 @@ export const verifyOtpSchema = z.object({
   code: z.string().regex(/^\d{6}$/, "OTP deve ter 6 dígitos"),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+});
+
+export const resetPasswordSchema = z.object({
+  challengeId: z.string().uuid("Challenge inválido"),
+  code: z.string().regex(/^\d{6}$/, "OTP deve ter 6 dígitos"),
+  newPassword: z
+    .string()
+    .min(8, "Mínimo de 8 caracteres")
+    .regex(/[A-Z]/, "Inclua ao menos uma letra maiúscula")
+    .regex(/[a-z]/, "Inclua ao menos uma letra minúscula")
+    .regex(/[0-9]/, "Inclua ao menos um número"),
+});
+
 export const createHabitSchema = z.object({
   title: z.string().trim().min(1).max(80),
   description: z.string().trim().max(280).optional(),
@@ -37,6 +52,8 @@ export const updateHabitSchema = createHabitSchema.partial().extend({
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type CreateHabitInput = z.infer<typeof createHabitSchema>;
 export type UpdateHabitInput = z.infer<typeof updateHabitSchema>;
 
@@ -57,6 +74,18 @@ export type AuthChallengeResponse = {
   message: string;
   /** Só presente quando ALLOW_TEST_OTP=true (E2E/local). */
   debugOtp?: string;
+};
+
+export type ForgotPasswordResponse = {
+  message: string;
+  challengeId?: string;
+  expiresAt?: string;
+  debugOtp?: string;
+};
+
+export type ResetPasswordResponse = {
+  message: string;
+  email: string;
 };
 
 export type AuthUserResponse = {

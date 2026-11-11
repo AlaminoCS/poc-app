@@ -9,10 +9,20 @@ export class LoginChallengeRepository {
     userId: string;
     codeHash: string;
     expiresAt: Date;
+    purpose?: "login" | "password_reset";
     ip?: string;
     userAgent?: string;
   }) {
-    return this.prisma.loginChallenge.create({ data: input });
+    return this.prisma.loginChallenge.create({
+      data: {
+        userId: input.userId,
+        codeHash: input.codeHash,
+        expiresAt: input.expiresAt,
+        purpose: input.purpose ?? "login",
+        ip: input.ip,
+        userAgent: input.userAgent,
+      },
+    });
   }
 
   findById(id: string) {

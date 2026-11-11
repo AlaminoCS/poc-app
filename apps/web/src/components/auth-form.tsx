@@ -1,23 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import { api } from "@/lib/api/client";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ApiError, api } from "@/lib/api/client";
+import { PasswordField } from "@/components/password-field";
 
 type Mode = "login" | "register";
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conflict, setConflict] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("email");
+    if (fromQuery) setEmail(fromQuery);
+  }, [searchParams]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setConflict(false);
     setLoading(true);
     try {
       if (mode === "register") {
@@ -35,11 +43,18 @@ export function AuthForm({ mode }: { mode: Mode }) {
       );
       router.push("/verify-otp");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro inesperado");
+      if (mode === "register" && err instanceof ApiError && err.status === 409) {
+        setConflict(true);
+        setError("E-mail já cadastrado. Entre ou redefina a senha.");
+      } else {
+        setError(err instanceof Error ? err.message : "Erro inesperado");
+      }
     } finally {
       setLoading(false);
     }
   }
+
+  const emailQuery = encodeURIComponent(email.trim());
 
   return (
     <form
@@ -71,55 +86,34 @@ export function AuthForm({ mode }: { mode: Mode }) {
         />
       </label>
 
-      <label className="field">
-        <span>Senha</span>
-        <div className="password-field">
-          <input
-            type={showPassword ? "text" : "password"}
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            data-testid="auth-password"
-          />
-          <button
-            type="button"
-            className="password-toggle"
-            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-            aria-pressed={showPassword}
-            data-testid="auth-password-toggle"
-            onClick={() => setShowPassword((value) => !value)}
-          >
-            {showPassword ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M3 3l18 18M10.6 10.7a2.5 2.5 0 003.5 3.5M9.9 5.1A10.5 10.5 0 0121 12c-.6 1-1.4 2-2.4 2.9M6.1 6.2C4.6 7.4 3.5 8.8 3 12c1.8 4.5 6 7.5 9 7.5 1.4 0 2.8-.4 4.1-1.1"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinejoin="round"
-                />
-                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </label>
+      <PasswordField
+        label="Senha"
+        value={password}
+        onChange={setPassword}
+        autoComplete={mode === "login" ? "current-password" : "new-password"}
+        minLength={8}
+        testId="auth-password"
+        toggleTestId="auth-password-toggle"
+      />
 
       {error ? (
-        <p style={{ margin: 0, color: "#FF8FA3" }} data-testid="auth-error">
-          {error}
-        </p>
+        <div data-testid="auth-error" style={{ display: "grid", gap: "0.5rem" }}>
+          <p style={{ margin: 0, color: "#FF8FA3" }}>{error}</p>
+          {conflict ? (
+            <p className="muted" style={{ margin: 0, fontSize: "0.95rem" }}>
+              <Link href={`/login?email=${emailQuery}`} data-testid="auth-conflict-login">
+                Entrar com este e-mail
+              </Link>
+              {" · "}
+              <Link
+                href={`/forgot-password?email=${emailQuery}`}
+                data-testid="auth-conflict-forgot"
+              >
+                Esqueci a senha
+              </Link>
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <button
@@ -135,6 +129,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
         {mode === "login" ? (
           <>
             Novo por aqui? <Link href="/register">Criar conta</Link>
+            {" · "}
+            <Link href={email ? `/forgot-password?email=${emailQuery}` : "/forgot-password"}>
+              Esqueci a senha
+            </Link>
           </>
         ) : (
           <>

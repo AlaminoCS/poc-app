@@ -19,4 +19,8 @@ export class UsersService {
       passwordHash,
     });
   }
+
+  updatePasswordHash(id: string, passwordHash: string) {
+    return this.usersRepository.updatePasswordHash(id, passwordHash);
+  }
 }

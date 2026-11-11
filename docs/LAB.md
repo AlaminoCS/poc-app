@@ -42,6 +42,8 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - Tema vibrante customizado (sem visual “IA genérico”)
 - Front chama `/api` same-origin (rewrite) para evitar CORS; Nest precisa estar no mesmo deploy (Vercel Services) ou em `API_URL` alcançável pelo Next
 - `ALLOW_TEST_OTP=true` só para E2E/local — nunca em produção pública
+- Domínio Resend verificado (`alamino.dev.br`) + `RESEND_FROM` no domínio — sandbox do Resend só entregava OTP ao e-mail da conta
+- Reset de senha via OTP (mesmo challenge/mail) em vez de painel admin para destravar conta já cadastrada
 
 ## Roteiro de leitura sugerido
 

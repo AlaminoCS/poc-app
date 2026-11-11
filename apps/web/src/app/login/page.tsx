@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { AuthForm } from "@/components/auth-form";
 
 export default function LoginPage() {
@@ -7,7 +8,9 @@ export default function LoginPage() {
       <Link href="/" className="brand" style={{ display: "inline-block", marginBottom: "1.5rem", fontSize: "1.3rem" }}>
         Hábitos
       </Link>
-      <AuthForm mode="login" />
+      <Suspense fallback={<p className="muted">Carregando...</p>}>
+        <AuthForm mode="login" />
+      </Suspense>
     </main>
   );
 }

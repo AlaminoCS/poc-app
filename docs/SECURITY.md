@@ -25,4 +25,8 @@ Nunca commitados. Ver `.env.example`. Em produção: secrets da Vercel (web) + h
 
 ## Resend (lab)
 
-Sem domínio verificado, o Resend só entrega OTP para o e-mail da conta (ex.: `alamino.code.solutions@gmail.com`). Para destinatários arbitrários, verifique um domínio em [resend.com/domains](https://resend.com/domains) e ajuste `RESEND_FROM`.
+Sem domínio verificado, o Resend só entrega OTP para o e-mail da conta (ex.: `alamino.code.solutions@gmail.com`).
+
+Com `alamino.dev.br` verificado em [resend.com/domains](https://resend.com/domains), use `RESEND_FROM=Hábitos <noreply@alamino.dev.br>` (ou outro endereço do mesmo domínio) para enviar OTP a qualquer destinatário.
+
+Reset de senha reutiliza `LoginChallenge` com `purpose=password_reset` (OTP hasheado, TTL curto); o login continua com `purpose=login`.

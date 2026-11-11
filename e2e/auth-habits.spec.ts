@@ -44,4 +44,61 @@ test.describe("Hábitos — fluxo principal", () => {
     await card.getByRole("button", { name: `Marcar ${habitTitle}` }).click();
     await expect(card.getByRole("button", { name: `Marcar ${habitTitle}` })).toContainText("✓");
   });
+
+  test("e-mail já cadastrado oferece Entrar e Esqueci a senha", async ({ page }) => {
+    const email = uniqueEmail();
+    const password = "SenhaForte1";
+
+    await page.goto("/register");
+    await page.getByTestId("auth-email").fill(email);
+    await page.getByTestId("auth-password").fill(password);
+    await page.getByTestId("auth-submit").click();
+    await expect(page).toHaveURL(/\/verify-otp/);
+
+    await page.goto("/register");
+    await page.getByTestId("auth-email").fill(email);
+    await page.getByTestId("auth-password").fill(password);
+    await page.getByTestId("auth-submit").click();
+
+    await expect(page.getByTestId("auth-error")).toContainText(/já cadastrado/i);
+    await expect(page.getByTestId("auth-conflict-login")).toBeVisible();
+    await expect(page.getByTestId("auth-conflict-forgot")).toBeVisible();
+
+    await page.getByTestId("auth-conflict-login").click();
+    await expect(page).toHaveURL(new RegExp(`/login\\?email=${encodeURIComponent(email)}`));
+    await expect(page.getByTestId("auth-email")).toHaveValue(email);
+  });
+
+  test("forgot → reset → login → OTP → app", async ({ page }) => {
+    const email = uniqueEmail();
+    const password = "SenhaForte1";
+    const newPassword = "OutraSenha2";
+
+    await page.goto("/register");
+    await page.getByTestId("auth-email").fill(email);
+    await page.getByTestId("auth-password").fill(password);
+    await page.getByTestId("auth-submit").click();
+    await expect(page).toHaveURL(/\/verify-otp/);
+    await page.getByTestId("otp-submit").click();
+    await expect(page).toHaveURL(/\/app/);
+
+    await page.goto("/forgot-password");
+    await page.getByTestId("forgot-email").fill(email);
+    await page.getByTestId("forgot-submit").click();
+
+    await expect(page).toHaveURL(/\/reset-password/);
+    await expect(page.getByTestId("reset-otp-code")).not.toHaveValue("");
+    await page.getByTestId("reset-password").fill(newPassword);
+    await page.getByTestId("reset-submit").click();
+
+    await expect(page).toHaveURL(new RegExp(`/login\\?email=${encodeURIComponent(email)}`));
+    await expect(page.getByTestId("auth-email")).toHaveValue(email);
+    await page.getByTestId("auth-password").fill(newPassword);
+    await page.getByTestId("auth-submit").click();
+
+    await expect(page).toHaveURL(/\/verify-otp/);
+    await expect(page.getByTestId("otp-code")).not.toHaveValue("");
+    await page.getByTestId("otp-submit").click();
+    await expect(page).toHaveURL(/\/app/);
+  });
 });

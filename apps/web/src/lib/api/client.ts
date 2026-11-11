@@ -2,9 +2,13 @@ import type {
   AuthChallengeResponse,
   AuthUserResponse,
   CreateHabitInput,
+  ForgotPasswordInput,
+  ForgotPasswordResponse,
   HabitDto,
   LoginInput,
   RegisterInput,
+  ResetPasswordInput,
+  ResetPasswordResponse,
   UpdateHabitInput,
   VerifyOtpInput,
 } from "@poc/shared";
@@ -19,6 +23,16 @@ const API_URL =
   configured === "" || configured === "/"
     ? ""
     : configured;
+
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 async function request<T>(
   path: string,
@@ -42,7 +56,7 @@ async function request<T>(
     } catch {
       // ignore parse errors
     }
-    throw new Error(message);
+    throw new ApiError(response.status, message);
   }
 
   if (response.status === 204) {
@@ -61,6 +75,18 @@ export const api = {
   },
   login(input: LoginInput) {
     return request<AuthChallengeResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  forgotPassword(input: ForgotPasswordInput) {
+    return request<ForgotPasswordResponse>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  resetPassword(input: ResetPasswordInput) {
+    return request<ResetPasswordResponse>("/auth/reset-password", {
       method: "POST",
       body: JSON.stringify(input),
     });

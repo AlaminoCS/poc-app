@@ -10,7 +10,13 @@ import {
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { CurrentUser, AuthUser } from "./current-user.decorator";
-import { LoginDto, RegisterDto, VerifyOtpDto } from "./dto/auth.dto";
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  RegisterDto,
+  ResetPasswordDto,
+  VerifyOtpDto,
+} from "./dto/auth.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 
 @Controller("auth")
@@ -28,6 +34,20 @@ export class AuthController {
       ip: req.ip,
       userAgent: req.headers["user-agent"],
     });
+  }
+
+  @Post("forgot-password")
+  forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  @Post("reset-password")
+  resetPassword(@Body() body: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      body.challengeId,
+      body.code,
+      body.newPassword,
+    );
   }
 
   @Post("verify-otp")

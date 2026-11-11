@@ -20,18 +20,21 @@ model User {
 }
 
 model LoginChallenge {
-  id        String    @id @default(uuid())
-  userId    String
-  codeHash  String
-  expiresAt DateTime
+  id         String    @id @default(uuid())
+  userId     String
+  codeHash   String
+  /// login | password_reset
+  purpose    String    @default("login")
+  expiresAt  DateTime
   consumedAt DateTime?
-  ip        String?
-  userAgent String?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
+  @@index([purpose])
 }
 
 model Habit {
