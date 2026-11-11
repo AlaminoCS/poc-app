@@ -24,8 +24,9 @@ RUN pnpm --filter @poc/shared build \
 
 FROM base AS runner
 ENV NODE_ENV=production
-ENV PORT=3001
+# Vercel Containers roteiam para a porta 80 por padrão (ou $PORT injetado)
+ENV PORT=80
 WORKDIR /app
 COPY --from=build /app /app
-EXPOSE 3001
+EXPOSE 80
 CMD ["sh", "-c", "cd /app/packages/db && pnpm exec prisma migrate deploy && cd /app/apps/api && node dist/main.js"]
