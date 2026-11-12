@@ -8,29 +8,34 @@ export function SiteFooter() {
       <div className="shell site-footer-inner">
         <div className="site-footer-copy">
           <p>
-            <span>© {new Date().getFullYear()} Vanderlei José Alamino · construído com </span>
-            <span className="site-footer-accent">
-              Next.js · React · TypeScript · Tailwind CSS
+            © {new Date().getFullYear()} Vanderlei José Alamino
+            <span className="site-footer-sep" aria-hidden>
+              ·
+            </span>
+            construído com{" "}
+            <span className="site-footer-stack">
+              Next.js · NestJS · Prisma · Neon · Resend · Vercel
             </span>
           </p>
           <p>
-            <span>Feito com ❤️ por </span>
+            Feito com{" "}
+            <span className="site-footer-heart" aria-hidden>
+              ❤️
+            </span>{" "}
+            por{" "}
             <a
               href="https://alamino.dev.br/"
               target="_blank"
               rel="noreferrer"
-              className="site-footer-accent"
+              className="site-footer-brand"
             >
               Alamino Code Solutions
             </a>
           </p>
         </div>
-        <div className="site-footer-meta">
-          <span className="site-footer-dot" aria-hidden />
-          <Link href="/" className="site-footer-version">
-            v{APP_VERSION}
-          </Link>
-        </div>
+        <Link href="/" className="site-footer-version" title="Versão do app">
+          v{APP_VERSION}
+        </Link>
       </div>
     </footer>
   );
