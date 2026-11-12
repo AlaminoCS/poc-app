@@ -7,14 +7,17 @@ Aplicação de hábitos diários usada como **laboratório de engenharia com age
 **Stack:** Next.js · NestJS · Prisma · Neon · Resend · Web Push · Cloudflare Turnstile · Docker · Vercel  
 **Repo:** [AlaminoCS/poc-app](https://github.com/AlaminoCS/poc-app) · **Web:** [poc.alamino.dev.br](https://poc.alamino.dev.br)
 
-## Novidades 0.3.1
+<details>
+<summary><strong>Novidades / changelog</strong></summary>
+
+### 0.3.1
 
 - Chrome único: logo **Hábitos** + menu hambúrguer em todas as páginas
 - Logo/Home leva a `/app` quando logado (não mais à landing deslogada)
 - Rodapé alinhado ao site pessoal (crédito Alamino Code Solutions → [alamino.dev.br](https://alamino.dev.br/)) + versão
 - Contrate-me: links públicos modernizados; formulário de mensagem pré-preenchido com nome/e-mail da sessão
 
-## Novidades 0.3.0
+### 0.3.0
 
 - UX: hábitos em evidência; menu hambúrguer; lembretes em `/app/lembretes`
 - Editar hábito faz scroll até o formulário; ações do card em menu “⋯”
@@ -22,11 +25,13 @@ Aplicação de hábitos diários usada como **laboratório de engenharia com age
 - Feedback háptico no mobile no check-in
 - Diagrama SVG corrigido para Preview no GitHub + README com “porquê” da stack
 
-## Novidades 0.2.0
+### 0.2.0
 
 - Perfil com nome e `birthDate` (idade mínima 13 — LGPD); banner **Feliz aniversário**
 - Troca de senha logada com confirmação **OTP**
 - Edição de hábitos; frequência; horário de lembrete; calendário; Web Push; Turnstile; LGPD
+
+</details>
 
 ## Para quem analisa este repositório
 
