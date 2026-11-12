@@ -238,7 +238,12 @@ export class AuthService {
     return this.toAuthUser(user);
   }
 
-  async verifyOtp(challengeId: string, code: string, res: Response) {
+  async verifyOtp(
+    challengeId: string,
+    code: string,
+    res: Response,
+    rememberMe = false,
+  ) {
     const challenge = await this.challenges.findById(challengeId);
     if (
       !challenge ||
@@ -258,10 +263,17 @@ export class AuthService {
 
     await this.challenges.consume(challenge.id);
 
-    const token = this.jwtTokenService.sign({
-      sub: challenge.user.id,
-      email: challenge.user.email,
-    });
+    const expiresIn = rememberMe
+      ? (this.config.get<string>("JWT_EXPIRES_IN_REMEMBER") ?? "30d")
+      : (this.config.get<string>("JWT_EXPIRES_IN") ?? "1d");
+
+    const token = this.jwtTokenService.sign(
+      {
+        sub: challenge.user.id,
+        email: challenge.user.email,
+      },
+      expiresIn,
+    );
 
     const secure = (this.config.get("COOKIE_SECURE") ?? "false") === "true";
     res.cookie("access_token", token, {
@@ -269,7 +281,7 @@ export class AuthService {
       secure,
       sameSite: "lax",
       path: "/",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: this.jwtTokenService.ttlMs(expiresIn),
     });
 
     return this.toAuthUser(challenge.user);

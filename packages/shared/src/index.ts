@@ -22,6 +22,7 @@ export const loginSchema = z.object({
 export const verifyOtpSchema = z.object({
   challengeId: z.string().uuid("Challenge inválido"),
   code: z.string().regex(/^\d{6}$/, "OTP deve ter 6 dígitos"),
+  rememberMe: z.boolean().optional(),
 });
 
 export const forgotPasswordSchema = z.object({

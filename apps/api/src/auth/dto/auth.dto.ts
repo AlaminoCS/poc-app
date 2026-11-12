@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import {
   IsBoolean,
   IsEmail,
@@ -38,6 +39,11 @@ export class VerifyOtpDto {
   @IsString()
   @Matches(/^\d{6}$/)
   code!: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === "true")
+  @IsBoolean()
+  rememberMe?: boolean;
 }
 
 export class ForgotPasswordDto {

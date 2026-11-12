@@ -18,6 +18,9 @@
 
 - JWT assinado com `JWT_SECRET`
 - Cookie `access_token` com `HttpOnly`, `SameSite=Lax`, `Secure` em produção
+- TTL do cookie **alinhado** ao `expiresIn` do JWT
+- Sem “Manter conectado”: `JWT_EXPIRES_IN` (padrão `1d`)
+- Com “Manter conectado”: `JWT_EXPIRES_IN_REMEMBER` (padrão `30d`) — OTP continua obrigatório no login
 
 ## Segredos
 

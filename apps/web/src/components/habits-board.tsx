@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthUserResponse, HabitDto, HabitFrequency } from "@poc/shared";
 import { api } from "@/lib/api/client";
 import { AppNav } from "@/components/app-nav";
 import { HabitsBoardSkeleton } from "@/components/skeleton";
-import { enablePushNotifications } from "@/lib/push";
+import { vibrate } from "@/lib/vibrate";
 
 const COLORS = ["#FF4D6D", "#FFD166", "#2EC4B6", "#7B61FF", "#4CC9F0"];
 const WEEKDAYS = [
@@ -51,6 +50,7 @@ const emptyDraft = (): Draft => ({
 
 export function HabitsBoard() {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [habits, setHabits] = useState<HabitDto[]>([]);
   const [me, setMe] = useState<AuthUserResponse | null>(null);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -58,7 +58,8 @@ export function HabitsBoard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [pushMsg, setPushMsg] = useState<string | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -75,13 +76,33 @@ export function HabitsBoard() {
     })();
   }, [router]);
 
+  useEffect(() => {
+    if (!menuOpenId) return;
+    function onDoc(e: MouseEvent) {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest?.(`[data-habit-menu="${menuOpenId}"]`)) return;
+      setMenuOpenId(null);
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuOpenId]);
+
+  function scrollToForm() {
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      formRef.current?.querySelector<HTMLInputElement>("[data-testid=habit-title]")?.focus();
+    });
+  }
+
   function fillDraft(habit?: HabitDto) {
     if (!habit) {
       setDraft(emptyDraft());
       setEditingId(null);
+      setFormOpen(false);
       return;
     }
     setEditingId(habit.id);
+    setFormOpen(true);
     setDraft({
       title: habit.title,
       description: habit.description ?? "",
@@ -92,6 +113,14 @@ export function HabitsBoard() {
       remindAtTime: habit.remindAtTime ?? "08:00",
       remindEnabled: habit.remindEnabled,
     });
+    scrollToForm();
+  }
+
+  function openCreate() {
+    setEditingId(null);
+    setDraft(emptyDraft());
+    setFormOpen(true);
+    scrollToForm();
   }
 
   async function onSubmit(event: FormEvent) {
@@ -115,8 +144,10 @@ export function HabitsBoard() {
         const created = await api.createHabit(payload);
         setHabits((prev) => [...prev, created]);
       }
+      vibrate(16);
       fillDraft();
     } catch (err) {
+      vibrate([20, 40, 20]);
       setError(err instanceof Error ? err.message : "Erro ao salvar hábito");
     }
   }
@@ -126,7 +157,9 @@ export function HabitsBoard() {
     try {
       const updated = await api.toggleHabitToday(id);
       setHabits((prev) => prev.map((item) => (item.id === id ? updated : item)));
+      vibrate(updated.checkedToday ? 18 : 10);
     } catch (err) {
+      vibrate([20, 40, 20]);
       setError(err instanceof Error ? err.message : "Erro ao marcar hábito");
     } finally {
       setBusyId(null);
@@ -134,12 +167,15 @@ export function HabitsBoard() {
   }
 
   async function onDelete(id: string) {
+    setMenuOpenId(null);
     setBusyId(id);
     try {
       await api.deleteHabit(id);
       setHabits((prev) => prev.filter((item) => item.id !== id));
       if (editingId === id) fillDraft();
+      vibrate([12, 30, 12]);
     } catch (err) {
+      vibrate([20, 40, 20]);
       setError(err instanceof Error ? err.message : "Erro ao remover");
     } finally {
       setBusyId(null);
@@ -151,6 +187,7 @@ export function HabitsBoard() {
     try {
       const updated = await api.updateHabit(habit.id, { remindEnabled: enabled });
       setHabits((prev) => prev.map((h) => (h.id === habit.id ? updated : h)));
+      vibrate(10);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao atualizar lembrete");
     } finally {
@@ -158,64 +195,31 @@ export function HabitsBoard() {
     }
   }
 
-  async function enableAllReminders() {
-    setError(null);
-    try {
-      const updated = await Promise.all(
-        habits.map((h) => api.updateHabit(h.id, { remindEnabled: true })),
-      );
-      setHabits(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao ativar lembretes");
-    }
-  }
-
-  async function onEnablePush() {
-    setPushMsg(null);
-    try {
-      await enablePushNotifications();
-      const profile = await api.me();
-      setMe(profile);
-      setPushMsg("Lembretes do navegador ativados.");
-    } catch (err) {
-      setPushMsg(err instanceof Error ? err.message : "Não foi possível ativar");
-    }
-  }
-
-  async function onLogout() {
-    await api.logout();
-    router.replace("/login");
-  }
-
   if (loading) return <HabitsBoardSkeleton />;
 
   const greeting = me?.name || me?.email || "";
+  const showForm = formOpen || Boolean(editingId);
 
   return (
     <div style={{ display: "grid", gap: "1.25rem" }}>
-      <AppNav />
-      <header
-        className="fade-up"
+      <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          gap: "1rem",
-          alignItems: "center",
-          flexWrap: "wrap",
+          gap: "0.75rem",
+          alignItems: "flex-start",
         }}
       >
-        <div>
+        <header className="fade-up" style={{ flex: 1, minWidth: 0 }}>
           <div className="brand" style={{ fontSize: "1.8rem" }}>
             Hábitos
           </div>
           <p className="muted" style={{ margin: "0.2rem 0 0" }} data-testid="app-greeting">
             Olá, {greeting}
           </p>
-        </div>
-        <button className="btn btn-ghost" type="button" onClick={() => void onLogout()}>
-          Sair
-        </button>
-      </header>
+        </header>
+        <AppNav />
+      </div>
 
       {me?.isBirthdayToday ? (
         <div className="birthday-banner" data-testid="birthday-banner">
@@ -226,166 +230,24 @@ export function HabitsBoard() {
         </div>
       ) : null}
 
-      <div className="panel fade-up" style={{ padding: "1rem 1.15rem", display: "grid", gap: "0.75rem" }}>
-        <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-          <button
-            className="btn btn-primary"
-            type="button"
-            data-testid="enable-push"
-            onClick={() => void onEnablePush()}
-          >
-            Ativar lembretes do navegador
-          </button>
-          <button className="btn btn-ghost" type="button" onClick={() => void enableAllReminders()}>
-            Lembrar todos os hábitos
-          </button>
-          <Link className="btn btn-ghost" href="/app/acompanhamento">
-            Ver calendário
-          </Link>
-        </div>
-        {pushMsg ? <p className="muted" style={{ margin: 0 }}>{pushMsg}</p> : null}
-        <p className="muted" style={{ margin: 0, fontSize: "0.9rem" }}>
-          Escolha hábitos específicos no card (interruptores de lembrete) ou ative todos de uma vez.
-        </p>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center" }}>
+        <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem" }}>
+          Seus hábitos
+        </h2>
+        <button
+          className="btn btn-primary"
+          type="button"
+          data-testid="habit-new"
+          onClick={openCreate}
+          style={{ padding: "0.65rem 1.1rem" }}
+        >
+          Novo hábito
+        </button>
       </div>
 
-      <form
-        className="panel fade-up"
-        onSubmit={onSubmit}
-        style={{ padding: "1.25rem", display: "grid", gap: "0.85rem", animationDelay: "60ms" }}
-        data-testid="habit-create-form"
-      >
-        <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>
-          {editingId ? "Editar hábito" : "Novo hábito"}
-        </h2>
-        <label className="field">
-          <span>Título</span>
-          <input
-            required
-            maxLength={80}
-            value={draft.title}
-            onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-            data-testid="habit-title"
-          />
-        </label>
-        <label className="field">
-          <span>Descrição</span>
-          <textarea
-            rows={2}
-            maxLength={280}
-            value={draft.description}
-            onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
-          />
-        </label>
-        <label className="field">
-          <span>Frequência</span>
-          <select
-            value={draft.frequency}
-            onChange={(e) =>
-              setDraft((d) => ({ ...d, frequency: e.target.value as HabitFrequency }))
-            }
-            data-testid="habit-frequency"
-          >
-            <option value="daily">Diário</option>
-            <option value="weekdays">Dias úteis</option>
-            <option value="weekly">Semanal</option>
-            <option value="monthly">Mensal</option>
-          </select>
-        </label>
-        {draft.frequency === "weekly" ? (
-          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-            {WEEKDAYS.map((day) => {
-              const on = draft.weekdays.includes(day.v);
-              return (
-                <button
-                  key={day.v}
-                  type="button"
-                  className="btn btn-ghost"
-                  style={{
-                    padding: "0.4rem 0.7rem",
-                    background: on ? "rgba(46,196,182,0.25)" : undefined,
-                  }}
-                  onClick={() =>
-                    setDraft((d) => ({
-                      ...d,
-                      weekdays: on
-                        ? d.weekdays.filter((x) => x !== day.v)
-                        : [...d.weekdays, day.v],
-                    }))
-                  }
-                >
-                  {day.l}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-        {draft.frequency === "monthly" ? (
-          <label className="field">
-            <span>Dia do mês</span>
-            <input
-              type="number"
-              min={1}
-              max={31}
-              value={draft.monthDay}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, monthDay: Number(e.target.value) || 1 }))
-              }
-            />
-          </label>
-        ) : null}
-        <label className="field">
-          <span>Horário do lembrete</span>
-          <input
-            type="time"
-            value={draft.remindAtTime}
-            onChange={(e) => setDraft((d) => ({ ...d, remindAtTime: e.target.value }))}
-            data-testid="habit-time"
-          />
-        </label>
-        <label style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={draft.remindEnabled}
-            onChange={(e) => setDraft((d) => ({ ...d, remindEnabled: e.target.checked }))}
-            data-testid="habit-remind-enabled"
-          />
-          Lembrar este hábito
-        </label>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {COLORS.map((swatch) => (
-            <button
-              key={swatch}
-              type="button"
-              aria-label={`Cor ${swatch}`}
-              onClick={() => setDraft((d) => ({ ...d, color: swatch }))}
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 999,
-                border: draft.color === swatch ? "2px solid #fff" : "2px solid transparent",
-                background: swatch,
-                cursor: "pointer",
-              }}
-            />
-          ))}
-        </div>
-        {error ? <p style={{ margin: 0, color: "#FF8FA3" }}>{error}</p> : null}
-        <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
-          <button className="btn btn-primary" type="submit" data-testid="habit-submit">
-            {editingId ? "Salvar alterações" : "Adicionar"}
-          </button>
-          {editingId ? (
-            <button className="btn btn-ghost" type="button" onClick={() => fillDraft()}>
-              Cancelar
-            </button>
-          ) : null}
-        </div>
-      </form>
-
-      <section style={{ display: "grid", gap: "0.85rem" }}>
+      <section style={{ display: "grid", gap: "0.85rem" }} data-testid="habits-list">
         {habits.length === 0 ? (
-          <p className="muted">Nenhum hábito ainda. Crie o primeiro acima.</p>
+          <p className="muted">Nenhum hábito ainda. Crie o primeiro.</p>
         ) : (
           habits.map((habit, index) => (
             <article
@@ -397,7 +259,7 @@ export function HabitsBoard() {
                 gridTemplateColumns: "auto 1fr auto",
                 gap: "0.9rem",
                 alignItems: "center",
-                animationDelay: `${100 + index * 40}ms`,
+                animationDelay: `${40 + index * 40}ms`,
                 borderLeft: `5px solid ${habit.color}`,
                 opacity: habit.dueToday ? 1 : 0.72,
               }}
@@ -463,28 +325,219 @@ export function HabitsBoard() {
                   Lembrete
                 </label>
               </div>
-              <div style={{ display: "grid", gap: "0.4rem" }}>
+              <div
+                data-habit-menu={habit.id}
+                style={{ position: "relative" }}
+              >
                 <button
                   className="btn btn-ghost"
                   type="button"
-                  data-testid={`habit-edit-${habit.id}`}
-                  onClick={() => fillDraft(habit)}
+                  aria-label={`Ações de ${habit.title}`}
+                  aria-expanded={menuOpenId === habit.id}
+                  data-testid={`habit-menu-${habit.id}`}
+                  onClick={() => {
+                    vibrate(8);
+                    setMenuOpenId((id) => (id === habit.id ? null : habit.id));
+                  }}
+                  style={{ padding: "0.45rem 0.7rem", minWidth: 42 }}
                 >
-                  Editar
+                  ⋯
                 </button>
-                <button
-                  className="btn btn-ghost"
-                  type="button"
-                  disabled={busyId === habit.id}
-                  onClick={() => void onDelete(habit.id)}
-                >
-                  Remover
-                </button>
+                {menuOpenId === habit.id ? (
+                  <div
+                    className="panel habit-kebab"
+                    role="menu"
+                    data-testid={`habit-menu-panel-${habit.id}`}
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="habit-kebab-item"
+                      data-testid={`habit-edit-${habit.id}`}
+                      onClick={() => {
+                        setMenuOpenId(null);
+                        fillDraft(habit);
+                      }}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="habit-kebab-item"
+                      disabled={busyId === habit.id}
+                      data-testid={`habit-delete-${habit.id}`}
+                      onClick={() => void onDelete(habit.id)}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </article>
           ))
         )}
       </section>
+
+      {showForm ? (
+        <form
+          ref={formRef}
+          className="panel fade-up"
+          onSubmit={onSubmit}
+          style={{ padding: "1.25rem", display: "grid", gap: "0.85rem" }}
+          data-testid="habit-create-form"
+        >
+          <h2 style={{ margin: 0, fontFamily: "var(--font-display)" }}>
+            {editingId ? "Editar hábito" : "Novo hábito"}
+          </h2>
+          <label className="field">
+            <span>Título</span>
+            <input
+              required
+              maxLength={80}
+              value={draft.title}
+              onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+              data-testid="habit-title"
+            />
+          </label>
+          <label className="field">
+            <span>Descrição</span>
+            <textarea
+              rows={2}
+              maxLength={280}
+              value={draft.description}
+              onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+            />
+          </label>
+          <label className="field">
+            <span>Frequência</span>
+            <select
+              value={draft.frequency}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, frequency: e.target.value as HabitFrequency }))
+              }
+              data-testid="habit-frequency"
+            >
+              <option value="daily">Diário</option>
+              <option value="weekdays">Dias úteis</option>
+              <option value="weekly">Semanal</option>
+              <option value="monthly">Mensal</option>
+            </select>
+          </label>
+          {draft.frequency === "weekly" ? (
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+              {WEEKDAYS.map((day) => {
+                const on = draft.weekdays.includes(day.v);
+                return (
+                  <button
+                    key={day.v}
+                    type="button"
+                    className="btn btn-ghost"
+                    style={{
+                      padding: "0.4rem 0.7rem",
+                      background: on ? "rgba(255,255,255,0.16)" : undefined,
+                    }}
+                    onClick={() =>
+                      setDraft((d) => ({
+                        ...d,
+                        weekdays: on
+                          ? d.weekdays.filter((x) => x !== day.v)
+                          : [...d.weekdays, day.v],
+                      }))
+                    }
+                  >
+                    {day.l}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {draft.frequency === "monthly" ? (
+            <label className="field">
+              <span>Dia do mês</span>
+              <input
+                type="number"
+                min={1}
+                max={31}
+                value={draft.monthDay}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, monthDay: Number(e.target.value) || 1 }))
+                }
+              />
+            </label>
+          ) : null}
+          <label className="field">
+            <span>Cor</span>
+            <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+              {COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  aria-label={`Cor ${c}`}
+                  onClick={() => setDraft((d) => ({ ...d, color: c }))}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 999,
+                    border: draft.color === c ? "2px solid #fff" : "2px solid transparent",
+                    background: c,
+                    cursor: "pointer",
+                  }}
+                />
+              ))}
+            </div>
+          </label>
+          <label className="field">
+            <span>Horário do lembrete</span>
+            <input
+              type="time"
+              value={draft.remindAtTime}
+              onChange={(e) => setDraft((d) => ({ ...d, remindAtTime: e.target.value }))}
+              data-testid="habit-time"
+            />
+          </label>
+          <label
+            style={{
+              display: "inline-flex",
+              gap: "0.45rem",
+              alignItems: "center",
+              color: "var(--muted)",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={draft.remindEnabled}
+              onChange={(e) => setDraft((d) => ({ ...d, remindEnabled: e.target.checked }))}
+              data-testid="habit-remind-enabled"
+            />
+            Ativar lembrete neste hábito
+          </label>
+          {error ? (
+            <p style={{ margin: 0, color: "#FF8FA3" }} data-testid="habit-error">
+              {error}
+            </p>
+          ) : null}
+          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+            <button className="btn btn-primary" type="submit" data-testid="habit-submit">
+              {editingId ? "Salvar" : "Criar"}
+            </button>
+            <button
+              className="btn btn-ghost"
+              type="button"
+              onClick={() => fillDraft()}
+              data-testid="habit-cancel"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      ) : null}
+
+      {error && !showForm ? (
+        <p style={{ margin: 0, color: "#FF8FA3" }} data-testid="habit-error">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

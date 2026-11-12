@@ -15,11 +15,15 @@ async function registerAndEnterApp(
   page: import("@playwright/test").Page,
   email: string,
   password: string,
+  rememberMe = false,
 ) {
   await page.goto("/register");
   await dismissLgpd(page);
   await page.getByTestId("auth-email").fill(email);
   await page.getByTestId("auth-password").fill(password);
+  if (rememberMe) {
+    await page.getByTestId("remember-me").check();
+  }
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL(/\/verify-otp/);
   await expect(page.getByTestId("otp-code")).not.toHaveValue("");
@@ -27,7 +31,13 @@ async function registerAndEnterApp(
   await expect(page).toHaveURL(/\/app/);
 }
 
-test.describe("Hábitos v0.2", () => {
+async function openHabitForm(page: import("@playwright/test").Page) {
+  if (await page.getByTestId("habit-create-form").count()) return;
+  await page.getByTestId("habit-new").click();
+  await expect(page.getByTestId("habit-create-form")).toBeVisible();
+}
+
+test.describe("Hábitos v0.3", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem("habitos.lgpd.v1", "1");
@@ -49,12 +59,26 @@ test.describe("Hábitos v0.2", () => {
     const password = "SenhaForte1";
     const habitTitle = `Beber água ${Date.now()}`;
     await registerAndEnterApp(page, email, password);
+    await openHabitForm(page);
     await page.getByTestId("habit-title").fill(habitTitle);
     await page.getByTestId("habit-submit").click();
     await expect(page.getByText(habitTitle)).toBeVisible();
     const card = page.getByText(habitTitle).locator("xpath=ancestor::article[1]");
     await card.getByRole("button", { name: `Marcar ${habitTitle}` }).click();
     await expect(card.getByRole("button", { name: `Marcar ${habitTitle}` })).toContainText("✓");
+  });
+
+  test("manter conectado → cookie Max-Age longo", async ({ page }) => {
+    const email = uniqueEmail();
+    await registerAndEnterApp(page, email, "SenhaForte1", true);
+    const cookies = await page.context().cookies();
+    const access = cookies.find((c) => c.name === "access_token");
+    expect(access).toBeTruthy();
+    expect(access!.expires).toBeGreaterThan(0);
+    const ttlSec = access!.expires - Date.now() / 1000;
+    expect(ttlSec).toBeGreaterThanOrEqual(29 * 24 * 60 * 60 - 120);
+    await page.reload();
+    await expect(page.getByTestId("app-greeting")).toBeVisible();
   });
 
   test("perfil + birthday + change-password OTP", async ({ page }) => {
@@ -82,9 +106,10 @@ test.describe("Hábitos v0.2", () => {
     await expect(page.getByTestId("profile-info")).toContainText(/Senha atualizada/i);
   });
 
-  test("editar hábito + frequência weekdays", async ({ page }) => {
+  test("editar hábito + scroll + frequência weekdays", async ({ page }) => {
     const email = uniqueEmail();
     await registerAndEnterApp(page, email, "SenhaForte1");
+    await openHabitForm(page);
     await page.getByTestId("habit-title").fill("Corrida");
     await page.getByTestId("habit-frequency").selectOption("weekdays");
     await page.getByTestId("habit-time").fill("07:30");
@@ -92,15 +117,30 @@ test.describe("Hábitos v0.2", () => {
     await expect(page.getByText("Corrida")).toBeVisible();
     const article = page.getByText("Corrida").locator("xpath=ancestor::article[1]");
     await expect(article.getByText("Dias úteis")).toBeVisible();
-    await article.getByRole("button", { name: "Editar" }).click();
+    await article.getByRole("button", { name: /Ações de/ }).click();
+    await expect(page.getByRole("menuitem", { name: "Editar" })).toBeVisible();
+    await page.getByRole("menuitem", { name: "Editar" }).click();
+    await expect(page.getByTestId("habit-create-form")).toBeVisible();
+    await expect(page.getByTestId("habit-title")).toBeInViewport();
     await page.getByTestId("habit-title").fill("Corrida matinal");
     await page.getByTestId("habit-submit").click();
     await expect(page.getByText("Corrida matinal")).toBeVisible();
   });
 
+  test("menu hambúrguer + página lembretes", async ({ page }) => {
+    const email = uniqueEmail();
+    await registerAndEnterApp(page, email, "SenhaForte1");
+    await page.getByTestId("app-menu-toggle").click();
+    await expect(page.getByTestId("app-menu")).toBeVisible();
+    await page.getByTestId("nav-lembretes").click();
+    await expect(page).toHaveURL(/\/app\/lembretes/);
+    await expect(page.getByTestId("enable-push")).toBeVisible();
+  });
+
   test("calendário de acompanhamento", async ({ page }) => {
     const email = uniqueEmail();
     await registerAndEnterApp(page, email, "SenhaForte1");
+    await openHabitForm(page);
     await page.getByTestId("habit-title").fill("Meditar");
     await page.getByTestId("habit-submit").click();
     await page.goto("/app/acompanhamento");

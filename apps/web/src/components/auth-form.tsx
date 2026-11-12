@@ -13,6 +13,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conflict, setConflict] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           expiresAt: challenge.expiresAt,
           email,
           debugOtp: challenge.debugOtp,
+          rememberMe,
         }),
       );
       router.push("/verify-otp");
@@ -95,6 +97,24 @@ export function AuthForm({ mode }: { mode: Mode }) {
         testId="auth-password"
         toggleTestId="auth-password-toggle"
       />
+
+      <label
+        style={{
+          display: "inline-flex",
+          gap: "0.5rem",
+          alignItems: "center",
+          color: "var(--muted)",
+          fontSize: "0.95rem",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          data-testid="remember-me"
+        />
+        Manter conectado (até 30 dias após o OTP)
+      </label>
 
       {error ? (
         <div data-testid="auth-error" style={{ display: "grid", gap: "0.5rem" }}>

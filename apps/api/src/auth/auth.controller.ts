@@ -78,7 +78,12 @@ export class AuthController {
     @Body() body: VerifyOtpDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.authService.verifyOtp(body.challengeId, body.code, res);
+    return this.authService.verifyOtp(
+      body.challengeId,
+      body.code,
+      res,
+      Boolean(body.rememberMe),
+    );
   }
 
   @Post("logout")

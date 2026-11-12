@@ -46,6 +46,8 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - Reset de senha via OTP (mesmo challenge/mail) em vez de painel admin para destravar conta já cadastrada
 - v0.2: perfil/`birthDate`, calendário read-only, frequências, Web Push+cron, Turnstile no contato, ConsentEvent LGPD; entrega fatiada E2E→push→prod
 - Cron de lembretes: Hobby Vercel só aceita 1×/dia (`vercel.json`); endpoint `POST /api/internal/reminders/tick` + `CRON_SECRET` pode ser chamado por scheduler externo a cada 5 min (Actions precisa de scope `workflow` no token)
+- **Manter conectado** = JWT+cookie com TTL longo (30d); OTP continua obrigatório a cada novo login (não há “dispositivo confiável” na POC)
+- UX v0.3: hábitos em evidência; nav em hambúrguer; lembretes em `/app/lembretes`; SVG de arquitetura reescrito (GitHub rejeitava encoding corrompido)
 
 ## Roteiro de leitura sugerido
 

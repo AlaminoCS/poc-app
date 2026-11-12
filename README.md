@@ -1,22 +1,25 @@
 # Hábitos — POC Lab
 
-**Versão:** `0.2.0`
+**Versão:** `0.3.0`
 
 Aplicação de hábitos diários usada como **laboratório de engenharia com agentes de IA** (Cursor). O objetivo não é só “um CRUD online”: é deixar auditável *como* humano e agente colaboraram, quais decisões foram tomadas e por que certas medidas de arquitetura/segurança valem a pena.
 
 **Stack:** Next.js · NestJS · Prisma · Neon · Resend · Web Push · Cloudflare Turnstile · Docker · Vercel  
 **Repo:** [AlaminoCS/poc-app](https://github.com/AlaminoCS/poc-app) · **Web:** [poc.alamino.dev.br](https://poc.alamino.dev.br)
 
+## Novidades 0.3.0
+
+- UX: hábitos em evidência; menu hambúrguer; lembretes em `/app/lembretes`
+- Editar hábito faz scroll até o formulário; ações do card em menu “⋯”
+- **Manter conectado** (sessão 30d pós-OTP; OTP continua obrigatório a cada login)
+- Feedback háptico no mobile no check-in
+- Diagrama SVG corrigido para Preview no GitHub + README com “porquê” da stack
+
 ## Novidades 0.2.0
 
 - Perfil com nome e `birthDate` (idade mínima 13 — LGPD); banner **Feliz aniversário**
 - Troca de senha logada com confirmação **OTP**
-- Edição de hábitos; frequência (diário / dias úteis / semanal / mensal); horário de lembrete
-- Calendário de acompanhamento (somente leitura) com status completo/parcial/vazio
-- Web Push + lembretes (cron diário Vercel + tick a cada 5 min via GitHub Actions)
-- Skeletons de loading
-- Página **/contrate-me** com Turnstile + honeypot + rate limit (PII mascarada até unlock)
-- Banner LGPD + **/privacidade** + `ConsentEvent` versionado
+- Edição de hábitos; frequência; horário de lembrete; calendário; Web Push; Turnstile; LGPD
 
 ## Para quem analisa este repositório
 
@@ -34,13 +37,35 @@ O humano define intenção, restrições e critérios de pronto. O agente execut
 ## O que a POC demonstra
 
 - Cadastro/login com e-mail e senha + OTP via Resend  
+- “Manter conectado” (TTL longo) sem pular OTP  
 - Perfil, reset/change-password com OTP  
 - Hábitos com frequência, horário, edição, check-in e streak  
-- Calendário de cumprimento  
-- Lembretes Web Push  
+- Calendário de cumprimento e lembretes Web Push  
 - Contrate-me protegido + LGPD  
 
+## Por que esta stack
+
+| Tecnologia | Por quê |
+|------------|---------|
+| **Next.js** | UI App Router, deploy simples na Vercel, rotas finas e componentes client onde a POC precisa de interação |
+| **NestJS** | API modular com DI (Controller → Service → Repository), alinhada ao contrato em `AGENTS.md` |
+| **Prisma + migrations** | Schema versionado e `migrate deploy` previsível (sem `db push` em produção) |
+| **Neon Postgres** | Postgres gerenciado compatível com Vercel; `DATABASE_URL` + `DIRECT_URL` para migrate |
+| **Argon2id + pepper** | Hash moderno; pepper em env adiciona camada se o banco vazar |
+| **JWT em cookie HttpOnly** | Sessão sem expor token ao JS; `SameSite=Lax` + `Secure` em prod |
+| **Resend** | OTP e e-mails de contato sem SMTP próprio; domínio verificado para sair do sandbox |
+| **Web Push + VAPID** | Lembretes com app fechado, padrão web sem app nativo |
+| **Cloudflare Turnstile** | Anti-bot gratuito no contato, sem CAPTCHA clássico |
+| **Docker (API)** | Nest em container no Vercel Services — cookies/sessão previsíveis fora de serverless |
+| **Vercel Services** | Web + API no mesmo projeto com rewrite `/api` same-origin |
+| **Playwright** | E2E do fluxo real (cadastro → OTP → hábitos) antes de cada push relevante |
+| **pnpm + Turborepo** | Monorepo com packages compartilhados (`db`, `shared`) e builds filtrados |
+
 ## Arquitetura
+
+![Arquitetura Habitos POC](docs/architecture.svg)
+
+Fonte editável: [`docs/architecture.excalidraw`](docs/architecture.excalidraw).
 
 ```text
 Quem analisa o repo → Next.js + Nest (Vercel Services) → Neon Postgres
@@ -74,6 +99,7 @@ Ver [`.env.example`](.env.example).
 |----------|--------|
 | `DATABASE_URL` / `DIRECT_URL` | Neon / Postgres |
 | `PASSWORD_PEPPER` / `JWT_SECRET` | Auth |
+| `JWT_EXPIRES_IN` / `JWT_EXPIRES_IN_REMEMBER` | Sessão normal (1d) vs manter conectado (30d) |
 | `RESEND_API_KEY` / `RESEND_FROM` | OTP e contato |
 | `VAPID_*` / `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Web Push |
 | `CRON_SECRET` | Protege `/api/internal/reminders/tick` |
@@ -83,4 +109,4 @@ Ver [`.env.example`](.env.example).
 
 ## Deploy
 
-Monorepo na Vercel com **Services** (`vercel.json`: web Next + API container). Lembretes: cron diário no Hobby + GitHub Actions `*/5` em `/api/internal/reminders/tick` (Hobby não permite cron Vercel mais frequente). Domínio: [poc.alamino.dev.br](https://poc.alamino.dev.br).
+Monorepo na Vercel com **Services** (`vercel.json`: web Next + API container). Lembretes: cron diário no Hobby + endpoint tick com `CRON_SECRET` (scheduler externo a cada 5 min se necessário). Domínio: [poc.alamino.dev.br](https://poc.alamino.dev.br).

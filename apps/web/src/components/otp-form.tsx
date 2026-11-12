@@ -9,6 +9,7 @@ type Challenge = {
   expiresAt: string;
   email: string;
   debugOtp?: string;
+  rememberMe?: boolean;
 };
 
 export function OtpForm() {
@@ -37,7 +38,11 @@ export function OtpForm() {
     setLoading(true);
     setError(null);
     try {
-      await api.verifyOtp({ challengeId: challenge.challengeId, code });
+      await api.verifyOtp({
+        challengeId: challenge.challengeId,
+        code,
+        rememberMe: Boolean(challenge.rememberMe),
+      });
       sessionStorage.removeItem("otpChallenge");
       router.push("/app");
     } catch (err) {
