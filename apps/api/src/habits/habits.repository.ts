@@ -1,5 +1,19 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+
+type HabitWrite = {
+  title?: string;
+  description?: string | null;
+  color?: string;
+  active?: boolean;
+  sortOrder?: number;
+  frequency?: string;
+  weekdays?: number[];
+  monthDay?: number | null;
+  remindAtTime?: string | null;
+  remindEnabled?: boolean;
+};
 
 @Injectable()
 export class HabitsRepository {
@@ -11,23 +25,43 @@ export class HabitsRepository {
       include: {
         checkIns: {
           orderBy: { date: "desc" },
-          take: 60,
+          take: 120,
         },
       },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     });
   }
 
-  create(
-    userId: string,
-    data: { title: string; description?: string; color?: string },
-  ) {
+  listActiveWithUser(userId?: string) {
+    return this.prisma.habit.findMany({
+      where: {
+        active: true,
+        ...(userId ? { userId } : {}),
+        remindEnabled: true,
+        user: { notificationsEnabled: true },
+      },
+      include: {
+        user: { include: { pushSubscriptions: true } },
+        checkIns: {
+          orderBy: { date: "desc" },
+          take: 7,
+        },
+      },
+    });
+  }
+
+  create(userId: string, data: HabitWrite & { title: string }) {
     return this.prisma.habit.create({
       data: {
         userId,
         title: data.title,
         description: data.description,
         color: data.color,
+        frequency: data.frequency ?? "daily",
+        weekdays: data.weekdays ?? [],
+        monthDay: data.monthDay ?? undefined,
+        remindAtTime: data.remindAtTime ?? undefined,
+        remindEnabled: data.remindEnabled ?? false,
       },
       include: { checkIns: true },
     });
@@ -39,29 +73,21 @@ export class HabitsRepository {
       include: {
         checkIns: {
           orderBy: { date: "desc" },
-          take: 60,
+          take: 120,
         },
       },
     });
   }
 
-  update(
-    habitId: string,
-    data: {
-      title?: string;
-      description?: string;
-      color?: string;
-      active?: boolean;
-      sortOrder?: number;
-    },
-  ) {
+  update(habitId: string, data: HabitWrite) {
+    const payload: Prisma.HabitUpdateInput = { ...data };
     return this.prisma.habit.update({
       where: { id: habitId },
-      data,
+      data: payload,
       include: {
         checkIns: {
           orderBy: { date: "desc" },
-          take: 60,
+          take: 120,
         },
       },
     });
@@ -87,6 +113,18 @@ export class HabitsRepository {
   deleteCheckIn(habitId: string, date: Date) {
     return this.prisma.habitCheckIn.deleteMany({
       where: { habitId, date },
+    });
+  }
+
+  findReminderLog(habitId: string, date: Date) {
+    return this.prisma.reminderLog.findUnique({
+      where: { habitId_date: { habitId, date } },
+    });
+  }
+
+  createReminderLog(habitId: string, date: Date) {
+    return this.prisma.reminderLog.create({
+      data: { habitId, date },
     });
   }
 }

@@ -1,13 +1,21 @@
 import {
+  ArrayUnique,
+  IsArray,
   IsBoolean,
   IsHexColor,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
+  Matches,
+  Max,
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from "class-validator";
+
+const FREQUENCIES = ["daily", "weekdays", "weekly", "monthly"] as const;
 
 export class CreateHabitDto {
   @IsString()
@@ -23,6 +31,35 @@ export class CreateHabitDto {
   @IsOptional()
   @IsHexColor()
   color?: string;
+
+  @IsOptional()
+  @IsIn(FREQUENCIES)
+  frequency?: (typeof FREQUENCIES)[number];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(7, { each: true })
+  weekdays?: number[];
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  monthDay?: number | null;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsString()
+  @Matches(/^\d{2}:\d{2}$/)
+  remindAtTime?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  remindEnabled?: boolean;
 }
 
 export class UpdateHabitDto {
@@ -49,4 +86,33 @@ export class UpdateHabitDto {
   @IsInt()
   @Min(0)
   sortOrder?: number;
+
+  @IsOptional()
+  @IsIn(FREQUENCIES)
+  frequency?: (typeof FREQUENCIES)[number];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(7, { each: true })
+  weekdays?: number[];
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  monthDay?: number | null;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null)
+  @IsString()
+  @Matches(/^\d{2}:\d{2}$/)
+  remindAtTime?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  remindEnabled?: boolean;
 }

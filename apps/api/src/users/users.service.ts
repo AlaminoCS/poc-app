@@ -23,4 +23,16 @@ export class UsersService {
   updatePasswordHash(id: string, passwordHash: string) {
     return this.usersRepository.updatePasswordHash(id, passwordHash);
   }
+
+  updateProfile(
+    id: string,
+    data: {
+      name?: string | null;
+      birthDate?: Date | null;
+      timezone?: string;
+      notificationsEnabled?: boolean;
+    },
+  ) {
+    return this.usersRepository.updateProfile(id, data);
+  }
 }

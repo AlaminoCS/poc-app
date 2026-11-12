@@ -1,32 +1,32 @@
 import type {
   AuthChallengeResponse,
   AuthUserResponse,
+  ConsentInput,
+  ContactMessageInput,
+  ContactUnlockInput,
+  ContactUnlockResponse,
   CreateHabitInput,
   ForgotPasswordInput,
   ForgotPasswordResponse,
   HabitDto,
+  HabitsSummaryResponse,
   LoginInput,
+  PushSubscribeInput,
   RegisterInput,
   ResetPasswordInput,
   ResetPasswordResponse,
   UpdateHabitInput,
+  UpdateProfileInput,
+  ChangePasswordConfirmInput,
   VerifyOtpInput,
 } from "@poc/shared";
 
-/**
- * Em produção usamos URL relativa (same-origin) para evitar CORS:
- * o Next faz rewrite de `/api/*` para a API Nest (API_URL).
- * Em dev, NEXT_PUBLIC_API_URL=http://localhost:3001 continua válido.
- */
 const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 const API_URL =
-  configured === "" || configured === "/"
-    ? ""
-    : configured;
+  configured === "" || configured === "/" ? "" : configured;
 
 export class ApiError extends Error {
   readonly status: number;
-
   constructor(status: number, message: string) {
     super(message);
     this.name = "ApiError";
@@ -34,10 +34,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}/api${path}`, {
     ...init,
     credentials: "include",
@@ -54,15 +51,12 @@ async function request<T>(
       if (Array.isArray(body.message)) message = body.message.join(", ");
       else if (body.message) message = body.message;
     } catch {
-      // ignore parse errors
+      // ignore
     }
     throw new ApiError(response.status, message);
   }
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -91,6 +85,17 @@ export const api = {
       body: JSON.stringify(input),
     });
   },
+  requestChangePassword() {
+    return request<AuthChallengeResponse>("/auth/change-password/request", {
+      method: "POST",
+    });
+  },
+  confirmChangePassword(input: ChangePasswordConfirmInput) {
+    return request<{ message: string }>("/auth/change-password/confirm", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
   verifyOtp(input: VerifyOtpInput) {
     return request<AuthUserResponse>("/auth/verify-otp", {
       method: "POST",
@@ -103,8 +108,19 @@ export const api = {
   me() {
     return request<AuthUserResponse>("/auth/me");
   },
+  updateProfile(input: UpdateProfileInput) {
+    return request<AuthUserResponse>("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    });
+  },
   listHabits() {
     return request<HabitDto[]>("/habits");
+  },
+  habitsSummary(from: string, to: string) {
+    return request<HabitsSummaryResponse>(
+      `/habits/summary?from=${from}&to=${to}`,
+    );
   },
   createHabit(input: CreateHabitInput) {
     return request<HabitDto>("/habits", {
@@ -123,5 +139,35 @@ export const api = {
   },
   toggleHabitToday(id: string) {
     return request<HabitDto>(`/habits/${id}/toggle-today`, { method: "POST" });
+  },
+  acceptConsent(input: ConsentInput) {
+    return request<{ id: string }>("/consent", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  contactUnlock(input: ContactUnlockInput) {
+    return request<ContactUnlockResponse>("/contact/unlock", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  contactMessage(input: ContactMessageInput) {
+    return request<{ ok: boolean; message?: string }>("/contact/message", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  pushSubscribe(input: PushSubscribeInput) {
+    return request<{ ok: boolean }>("/notifications/subscribe", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  pushUnsubscribe(endpoint?: string) {
+    return request<{ ok: boolean }>("/notifications/subscribe", {
+      method: "DELETE",
+      body: JSON.stringify({ endpoint }),
+    });
   },
 };

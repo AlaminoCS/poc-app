@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Res,
@@ -11,10 +12,12 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { CurrentUser, AuthUser } from "./current-user.decorator";
 import {
+  ChangePasswordConfirmDto,
   ForgotPasswordDto,
   LoginDto,
   RegisterDto,
   ResetPasswordDto,
+  UpdateProfileDto,
   VerifyOtpDto,
 } from "./dto/auth.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
@@ -50,6 +53,26 @@ export class AuthController {
     );
   }
 
+  @Post("change-password/request")
+  @UseGuards(JwtAuthGuard)
+  requestChangePassword(@CurrentUser() user: AuthUser) {
+    return this.authService.requestChangePassword(user.id);
+  }
+
+  @Post("change-password/confirm")
+  @UseGuards(JwtAuthGuard)
+  confirmChangePassword(
+    @CurrentUser() user: AuthUser,
+    @Body() body: ChangePasswordConfirmDto,
+  ) {
+    return this.authService.confirmChangePassword(
+      user.id,
+      body.challengeId,
+      body.code,
+      body.newPassword,
+    );
+  }
+
   @Post("verify-otp")
   verifyOtp(
     @Body() body: VerifyOtpDto,
@@ -66,6 +89,12 @@ export class AuthController {
   @Get("me")
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: AuthUser) {
-    return this.authService.me(user);
+    return this.authService.me(user.id);
+  }
+
+  @Patch("me")
+  @UseGuards(JwtAuthGuard)
+  updateMe(@CurrentUser() user: AuthUser, @Body() body: UpdateProfileDto) {
+    return this.authService.updateProfile(user.id, body);
   }
 }

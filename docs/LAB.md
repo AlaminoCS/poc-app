@@ -44,6 +44,7 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - `ALLOW_TEST_OTP=true` só para E2E/local — nunca em produção pública
 - Domínio Resend verificado (`alamino.dev.br`) + `RESEND_FROM` no domínio — sandbox do Resend só entregava OTP ao e-mail da conta
 - Reset de senha via OTP (mesmo challenge/mail) em vez de painel admin para destravar conta já cadastrada
+- v0.2: perfil/`birthDate`, calendário read-only, frequências, Web Push+cron, Turnstile no contato, ConsentEvent LGPD; entrega fatiada E2E→push→prod
 
 ## Roteiro de leitura sugerido
 

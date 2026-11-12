@@ -28,4 +28,19 @@ export class UsersRepository {
       data: { passwordHash },
     });
   }
+
+  updateProfile(
+    id: string,
+    data: {
+      name?: string | null;
+      birthDate?: Date | null;
+      timezone?: string;
+      notificationsEnabled?: boolean;
+    },
+  ) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
 }

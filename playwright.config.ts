@@ -49,6 +49,7 @@ export default defineConfig({
             NEXT_PUBLIC_API_URL: "",
             API_URL: "http://127.0.0.1:3001",
             NEXT_PUBLIC_APP_URL: baseURL,
+            NEXT_PUBLIC_ALLOW_TEST_TURNSTILE: "true",
           },
         },
       ],

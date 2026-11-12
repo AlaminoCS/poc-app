@@ -7,6 +7,11 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
+import {
+  MIN_USER_AGE,
+  ageFromBirthDate,
+  isBirthdayToday,
+} from "@poc/shared";
 import { MAIL_PORT, MailPort } from "../mail/mail.port";
 import { UsersService } from "../users/users.service";
 import { JwtTokenService } from "./jwt-token.service";
@@ -35,7 +40,7 @@ export class AuthService {
 
     const passwordHash = await this.passwordHasher.hash(password);
     const user = await this.usersService.create(normalizedEmail, passwordHash);
-    return { id: user.id, email: user.email };
+    return this.toAuthUser(user);
   }
 
   async login(
@@ -144,6 +149,95 @@ export class AuthService {
     };
   }
 
+  async requestChangePassword(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException();
+
+    const code = this.otpService.generateCode();
+    const challenge = await this.challenges.create({
+      userId: user.id,
+      codeHash: this.otpService.hashCode(code),
+      expiresAt: this.otpService.expiresAt(),
+      purpose: "password_change",
+    });
+
+    await this.mail.send({
+      to: user.email,
+      subject: "Confirmar nova senha — Hábitos",
+      text: `Seu código para alterar a senha é ${code}.`,
+      html: this.otpEmailHtml("Use este código para confirmar a nova senha:", code),
+    });
+
+    const allowTestOtp = (this.config.get("ALLOW_TEST_OTP") ?? "false") === "true";
+    return {
+      challengeId: challenge.id,
+      expiresAt: challenge.expiresAt.toISOString(),
+      message: "Enviamos um código OTP para confirmar a troca de senha.",
+      ...(allowTestOtp ? { debugOtp: code } : {}),
+    };
+  }
+
+  async confirmChangePassword(
+    userId: string,
+    challengeId: string,
+    code: string,
+    newPassword: string,
+  ) {
+    const challenge = await this.challenges.findById(challengeId);
+    if (
+      !challenge ||
+      challenge.consumedAt ||
+      challenge.purpose !== "password_change" ||
+      challenge.userId !== userId
+    ) {
+      throw new BadRequestException("Desafio inválido ou já utilizado");
+    }
+
+    if (challenge.expiresAt.getTime() < Date.now()) {
+      throw new BadRequestException("Código expirado. Solicite novamente.");
+    }
+
+    if (!this.otpService.matches(code, challenge.codeHash)) {
+      throw new UnauthorizedException("Código OTP inválido");
+    }
+
+    const passwordHash = await this.passwordHasher.hash(newPassword);
+    await this.usersService.updatePasswordHash(userId, passwordHash);
+    await this.challenges.consume(challenge.id);
+
+    return { message: "Senha atualizada com sucesso." };
+  }
+
+  async updateProfile(
+    userId: string,
+    input: {
+      name?: string | null;
+      birthDate?: string | null;
+      timezone?: string;
+      notificationsEnabled?: boolean;
+    },
+  ) {
+    let birthDate: Date | null | undefined = undefined;
+    if (input.birthDate === null) birthDate = null;
+    else if (typeof input.birthDate === "string") {
+      const age = ageFromBirthDate(input.birthDate, input.timezone ?? "America/Sao_Paulo");
+      if (age < MIN_USER_AGE) {
+        throw new BadRequestException(
+          `Idade mínima: ${MIN_USER_AGE} anos (LGPD).`,
+        );
+      }
+      birthDate = new Date(`${input.birthDate}T12:00:00.000Z`);
+    }
+
+    const user = await this.usersService.updateProfile(userId, {
+      name: input.name,
+      birthDate,
+      timezone: input.timezone,
+      notificationsEnabled: input.notificationsEnabled,
+    });
+    return this.toAuthUser(user);
+  }
+
   async verifyOtp(challengeId: string, code: string, res: Response) {
     const challenge = await this.challenges.findById(challengeId);
     if (
@@ -178,10 +272,7 @@ export class AuthService {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    return {
-      id: challenge.user.id,
-      email: challenge.user.email,
-    };
+    return this.toAuthUser(challenge.user);
   }
 
   logout(res: Response) {
@@ -195,8 +286,34 @@ export class AuthService {
     return { ok: true };
   }
 
-  me(user: { id: string; email: string }) {
-    return { id: user.id, email: user.email };
+  async me(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException();
+    return this.toAuthUser(user);
+  }
+
+  private toAuthUser(user: {
+    id: string;
+    email: string;
+    name?: string | null;
+    birthDate?: Date | null;
+    timezone?: string;
+    notificationsEnabled?: boolean;
+  }) {
+    const timezone = user.timezone ?? "America/Sao_Paulo";
+    const birthDate = user.birthDate
+      ? user.birthDate.toISOString().slice(0, 10)
+      : null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? null,
+      birthDate,
+      timezone,
+      notificationsEnabled: user.notificationsEnabled ?? false,
+      isBirthdayToday: isBirthdayToday(user.birthDate, timezone),
+      age: birthDate ? ageFromBirthDate(birthDate, timezone) : null,
+    };
   }
 
   private otpEmailHtml(intro: string, code: string) {

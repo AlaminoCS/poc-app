@@ -9,7 +9,7 @@ export class LoginChallengeRepository {
     userId: string;
     codeHash: string;
     expiresAt: Date;
-    purpose?: "login" | "password_reset";
+    purpose?: "login" | "password_reset" | "password_change";
     ip?: string;
     userAgent?: string;
   }) {

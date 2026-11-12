@@ -200,3 +200,127 @@ textarea {
     transform: scale(1);
   }
 }
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.birthday-banner {
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.25), rgba(255, 77, 109, 0.28));
+  border: 1px solid rgba(255, 209, 102, 0.45);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  animation: fadeUp 600ms ease both;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+  transition: transform 140ms ease, border-color 140ms ease;
+}
+
+.cal-cell:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.cal-cell.is-complete {
+  background: linear-gradient(145deg, rgba(46, 196, 182, 0.35), rgba(124, 255, 178, 0.18));
+  border-color: rgba(46, 196, 182, 0.55);
+}
+
+.cal-cell.is-partial {
+  background: linear-gradient(145deg, rgba(255, 209, 102, 0.3), rgba(255, 138, 91, 0.15));
+  border-color: rgba(255, 209, 102, 0.5);
+}
+
+.cal-cell.is-empty {
+  background: linear-gradient(145deg, rgba(255, 77, 109, 0.22), rgba(255, 77, 109, 0.08));
+  border-color: rgba(255, 77, 109, 0.4);
+}
+
+.cal-cell.is-none {
+  opacity: 0.45;
+}
+
+.cal-cell.is-selected {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+.lgpd-banner {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 60;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.15rem 1.25rem;
+  background: rgba(10, 14, 22, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+.lgpd-banner a {
+  color: #4cc9f0;
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--stroke);
+  color: var(--muted);
+}
+
+.field select {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(7, 17, 31, 0.55);
+  color: var(--ink);
+  padding: 0.9rem 1rem;
+}

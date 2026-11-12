@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { AuthUser, CurrentUser } from "../auth/current-user.decorator";
@@ -21,6 +22,15 @@ export class HabitsController {
   @Get()
   list(@CurrentUser() user: AuthUser) {
     return this.habitsService.list(user.id);
+  }
+
+  @Get("summary")
+  summary(
+    @CurrentUser() user: AuthUser,
+    @Query("from") from: string,
+    @Query("to") to: string,
+  ) {
+    return this.habitsService.summary(user.id, from, to);
   }
 
   @Post()

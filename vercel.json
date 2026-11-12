@@ -16,5 +16,11 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": { "service": "api" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
+  ],
+  "crons": [
+    {
+      "path": "/api/internal/reminders/tick",
+      "schedule": "*/5 * * * *"
+    }
   ]
 }

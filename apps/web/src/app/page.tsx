@@ -58,6 +58,12 @@ export default function HomePage() {
           <Link className="btn btn-ghost" href="/login">
             Já tenho conta
           </Link>
+          <Link className="btn btn-ghost" href="/contrate-me">
+            Contrate-me
+          </Link>
+          <Link className="btn btn-ghost" href="/privacidade">
+            Privacidade
+          </Link>
         </div>
       </section>
     </main>
