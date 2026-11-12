@@ -13,7 +13,7 @@ Aplicação de hábitos diários usada como **laboratório de engenharia com age
 - Troca de senha logada com confirmação **OTP**
 - Edição de hábitos; frequência (diário / dias úteis / semanal / mensal); horário de lembrete
 - Calendário de acompanhamento (somente leitura) com status completo/parcial/vazio
-- Web Push + cron Vercel; lembretes por hábito ou todos
+- Web Push + lembretes (cron diário Vercel + tick a cada 5 min via GitHub Actions)
 - Skeletons de loading
 - Página **/contrate-me** com Turnstile + honeypot + rate limit (PII mascarada até unlock)
 - Banner LGPD + **/privacidade** + `ConsentEvent` versionado
@@ -83,4 +83,4 @@ Ver [`.env.example`](.env.example).
 
 ## Deploy
 
-Monorepo na Vercel com **Services** (`vercel.json`: web Next + API container) + cron `*/5 * * * *` em `/api/internal/reminders/tick`. Domínio: [poc.alamino.dev.br](https://poc.alamino.dev.br).
+Monorepo na Vercel com **Services** (`vercel.json`: web Next + API container). Lembretes: cron diário no Hobby + GitHub Actions `*/5` em `/api/internal/reminders/tick` (Hobby não permite cron Vercel mais frequente). Domínio: [poc.alamino.dev.br](https://poc.alamino.dev.br).

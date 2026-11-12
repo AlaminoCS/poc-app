@@ -45,6 +45,7 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - Domínio Resend verificado (`alamino.dev.br`) + `RESEND_FROM` no domínio — sandbox do Resend só entregava OTP ao e-mail da conta
 - Reset de senha via OTP (mesmo challenge/mail) em vez de painel admin para destravar conta já cadastrada
 - v0.2: perfil/`birthDate`, calendário read-only, frequências, Web Push+cron, Turnstile no contato, ConsentEvent LGPD; entrega fatiada E2E→push→prod
+- Cron de lembretes: Hobby Vercel só aceita 1×/dia (`vercel.json`); tick a cada 5 min via GitHub Actions (`reminders-tick.yml`) + `CRON_SECRET`
 
 ## Roteiro de leitura sugerido
 
