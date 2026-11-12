@@ -22,7 +22,13 @@
 
 @media (min-width: 768px) {
   :root {
-    --shell-gutter: 1.5rem;
+    --shell-gutter: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --shell-gutter: 2rem;
   }
 }
 
@@ -58,7 +64,11 @@ textarea {
   width: min(var(--shell-max), 100%);
   max-width: 100%;
   margin-inline: auto;
-  padding-inline: var(--shell-gutter);
+  padding-inline: max(
+    var(--shell-gutter),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
   box-sizing: border-box;
 }
 
@@ -541,6 +551,21 @@ textarea {
   gap: 1rem;
   min-height: 3.75rem;
   padding-block: 0.7rem;
+  /* Reforço: fundo do header é full-bleed; logo/menu seguem o gutter. */
+  padding-inline: max(
+    var(--shell-gutter),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
+}
+
+.site-main.shell,
+.site-footer-inner.shell {
+  padding-inline: max(
+    var(--shell-gutter),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
 }
 
 .site-logo {

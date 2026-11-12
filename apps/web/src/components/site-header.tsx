@@ -21,7 +21,13 @@ export function SiteHeader() {
 
   return (
     <header className="site-header" data-testid="site-header">
-      <div className="shell site-header-inner">
+      <div
+        className="shell site-header-inner"
+        style={{
+          paddingInline:
+            "max(var(--shell-gutter), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))",
+        }}
+      >
         <Link
           href={homeHref}
           className="brand site-logo"
