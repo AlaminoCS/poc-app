@@ -60,6 +60,7 @@ export function HabitsBoard() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [scrollFormNonce, setScrollFormNonce] = useState(0);
 
   useEffect(() => {
     void (async () => {
@@ -87,12 +88,38 @@ export function HabitsBoard() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [menuOpenId]);
 
-  function scrollToForm() {
-    requestAnimationFrame(() => {
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      formRef.current?.querySelector<HTMLInputElement>("[data-testid=habit-title]")?.focus();
-    });
+  function easeInOutCubic(t: number) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
+
+  function smoothScrollTo(el: HTMLElement, durationMs = 780) {
+    const top = el.getBoundingClientRect().top + window.scrollY - 24;
+    const start = window.scrollY;
+    const delta = top - start;
+    if (Math.abs(delta) < 2) return;
+    const startTime = performance.now();
+    function step(now: number) {
+      const t = Math.min(1, (now - startTime) / durationMs);
+      window.scrollTo(0, start + delta * easeInOutCubic(t));
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  useEffect(() => {
+    if (!scrollFormNonce) return;
+    const el = formRef.current;
+    if (!el) return;
+    const timer = window.setTimeout(() => {
+      smoothScrollTo(el, 820);
+      window.setTimeout(() => {
+        el.querySelector<HTMLInputElement>("[data-testid=habit-title]")?.focus({
+          preventScroll: true,
+        });
+      }, 420);
+    }, 40);
+    return () => window.clearTimeout(timer);
+  }, [scrollFormNonce]);
 
   function fillDraft(habit?: HabitDto) {
     if (!habit) {
@@ -113,14 +140,14 @@ export function HabitsBoard() {
       remindAtTime: habit.remindAtTime ?? "08:00",
       remindEnabled: habit.remindEnabled,
     });
-    scrollToForm();
+    setScrollFormNonce((n) => n + 1);
   }
 
   function openCreate() {
     setEditingId(null);
     setDraft(emptyDraft());
     setFormOpen(true);
-    scrollToForm();
+    setScrollFormNonce((n) => n + 1);
   }
 
   async function onSubmit(event: FormEvent) {
@@ -252,7 +279,7 @@ export function HabitsBoard() {
           habits.map((habit, index) => (
             <article
               key={habit.id}
-              className={`panel fade-up ${habit.checkedToday ? "check-pop" : ""}`}
+              className={`panel fade-up habit-card ${habit.checkedToday ? "check-pop" : ""} ${menuOpenId === habit.id ? "habit-card-menu-open" : ""}`}
               style={{
                 padding: "1rem 1.1rem",
                 display: "grid",
@@ -382,7 +409,7 @@ export function HabitsBoard() {
       {showForm ? (
         <form
           ref={formRef}
-          className="panel fade-up"
+          className="panel fade-up habit-form-anchor"
           onSubmit={onSubmit}
           style={{ padding: "1.25rem", display: "grid", gap: "0.85rem" }}
           data-testid="habit-create-form"
