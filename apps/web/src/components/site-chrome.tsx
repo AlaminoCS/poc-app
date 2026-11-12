@@ -6,7 +6,7 @@ type Props = {
   children: ReactNode;
   /** Largura máxima do conteúdo (ex.: 720). */
   maxWidth?: number | string;
-  /** Padding vertical do main. */
+  /** Padding vertical do main (horizontal vem do gutter do `.shell`). */
   padding?: string;
   className?: string;
   style?: CSSProperties;
@@ -15,7 +15,7 @@ type Props = {
 export function SiteChrome({
   children,
   maxWidth,
-  padding = "1.25rem 0 3rem",
+  padding = "1.35rem 0 3rem",
   className,
   style,
 }: Props) {
@@ -26,8 +26,9 @@ export function SiteChrome({
         className="shell site-main"
         style={{
           padding,
-          maxWidth: maxWidth ? `min(${typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth}, 100%)` : undefined,
-          width: "100%",
+          maxWidth: maxWidth
+            ? `min(${typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth}, 100%)`
+            : undefined,
           ...style,
         }}
       >

@@ -52,6 +52,8 @@ export function AppNav() {
 
   useEffect(() => {
     if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setOpen(false);
@@ -59,7 +61,10 @@ export function AppNav() {
       }
     }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   async function onLogout() {
@@ -77,7 +82,7 @@ export function AppNav() {
   const links = authed ? AUTH_LINKS : GUEST_LINKS;
 
   return (
-    <div className="app-nav" style={{ position: "relative", zIndex: 40 }}>
+    <div className={`app-nav${open ? " is-open" : ""}`}>
       <button
         ref={buttonRef}
         type="button"
@@ -87,10 +92,11 @@ export function AppNav() {
         aria-label={open ? "Fechar menu" : "Abrir menu"}
         data-testid="app-menu-toggle"
         onClick={toggle}
-        style={{ padding: "0.55rem 0.85rem", minWidth: 48 }}
       >
-        <span aria-hidden="true" style={{ fontSize: "1.35rem", lineHeight: 1 }}>
-          {open ? "✕" : "☰"}
+        <span className="app-nav-icon" aria-hidden="true">
+          <span />
+          <span />
+          <span />
         </span>
       </button>
 
@@ -105,7 +111,7 @@ export function AppNav() {
           />
           <div
             id={panelId}
-            className="panel app-nav-panel fade-up"
+            className="app-nav-panel fade-up"
             role="menu"
             data-testid="app-menu"
           >
@@ -126,10 +132,7 @@ export function AppNav() {
                   href={link.href}
                   role="menuitem"
                   data-testid={link.testId}
-                  className="app-nav-link"
-                  style={{
-                    background: active ? "rgba(255,255,255,0.12)" : undefined,
-                  }}
+                  className={`app-nav-link${active ? " is-active" : ""}`}
                   onClick={() => setOpen(false)}
                 >
                   {link.label}
@@ -140,19 +143,9 @@ export function AppNav() {
               <button
                 type="button"
                 role="menuitem"
-                className="app-nav-link"
+                className="app-nav-link is-logout"
                 data-testid="nav-sair"
                 onClick={() => void onLogout()}
-                style={{
-                  width: "100%",
-                  border: 0,
-                  background: "transparent",
-                  color: "inherit",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  font: "inherit",
-                  fontWeight: 700,
-                }}
               >
                 Sair
               </button>
