@@ -12,11 +12,16 @@ declare global {
         el: HTMLElement,
         opts: {
           sitekey: string;
+          theme?: "light" | "dark" | "auto";
+          language?: string;
           callback: (token: string) => void;
           "error-callback"?: () => void;
+          "expired-callback"?: () => void;
+          "timeout-callback"?: () => void;
         },
       ) => string;
       reset: (id?: string) => void;
+      remove: (id?: string) => void;
     };
   }
 }
@@ -31,35 +36,83 @@ export function HireMe() {
   const [unlock, setUnlock] = useState<ContactUnlockResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [widgetError, setWidgetError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const widgetRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
   useEffect(() => {
     if (!siteKey || !widgetRef.current) return;
+    let cancelled = false;
     const scriptId = "cf-turnstile";
+
     const mount = () => {
-      if (!widgetRef.current || !window.turnstile) return;
+      if (cancelled || !widgetRef.current || !window.turnstile) return;
+      // Evita widget duplicado (React Strict Mode remonta o effect).
+      if (widgetIdRef.current) {
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+        } catch {
+          /* ignore */
+        }
+        widgetIdRef.current = null;
+      }
       widgetRef.current.innerHTML = "";
-      window.turnstile.render(widgetRef.current, {
+      setWidgetError(null);
+      setToken("");
+      widgetIdRef.current = window.turnstile.render(widgetRef.current, {
         sitekey: siteKey,
-        callback: (t) => setToken(t),
-        "error-callback": () => setToken(""),
+        theme: "dark",
+        language: "pt-BR",
+        callback: (t) => {
+          setToken(t);
+          setWidgetError(null);
+        },
+        "error-callback": () => {
+          setToken("");
+          setWidgetError(
+            "A verificação humana falhou. Atualize a página, desative bloqueadores neste site e tente de novo.",
+          );
+        },
+        "expired-callback": () => {
+          setToken("");
+          setWidgetError("A verificação expirou. Resolva o desafio novamente.");
+        },
+        "timeout-callback": () => {
+          setToken("");
+          setWidgetError("Tempo esgotado na verificação. Tente novamente.");
+        },
       });
     };
-    if (document.getElementById(scriptId)) {
-      mount();
-      return;
+
+    const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (existing) {
+      if (window.turnstile) mount();
+      else existing.addEventListener("load", mount, { once: true });
+    } else {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = mount;
+      document.body.appendChild(script);
     }
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-    script.async = true;
-    script.onload = mount;
-    document.body.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      if (widgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+        } catch {
+          /* ignore */
+        }
+        widgetIdRef.current = null;
+      }
+    };
   }, [siteKey]);
 
   async function onUnlock(event: FormEvent) {
@@ -86,6 +139,10 @@ export function HireMe() {
       setInfo("Verificação ok. Canais liberados.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha na verificação");
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current);
+        setToken("");
+      }
     }
   }
 
@@ -156,11 +213,22 @@ export function HireMe() {
             data-testid="hire-honeypot"
           />
         </label>
-        {siteKey ? <div ref={widgetRef} /> : (
+        {siteKey ? (
+          <div
+            ref={widgetRef}
+            data-testid="hire-turnstile"
+            style={{ minHeight: 65 }}
+          />
+        ) : (
           <p className="muted" style={{ margin: 0 }}>
             Modo teste: Turnstile site key ausente — use o bypass de laboratório.
           </p>
         )}
+        {widgetError ? (
+          <p style={{ margin: 0, color: "#FF8FA3" }} data-testid="hire-turnstile-error">
+            {widgetError}
+          </p>
+        ) : null}
         <button className="btn btn-primary" type="submit" data-testid="hire-unlock">
           Liberar contatos
         </button>
