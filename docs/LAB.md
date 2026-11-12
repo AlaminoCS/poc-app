@@ -48,6 +48,7 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - Cron de lembretes: Hobby Vercel só aceita 1×/dia (`vercel.json`); endpoint `POST /api/internal/reminders/tick` + `CRON_SECRET` pode ser chamado por scheduler externo a cada 5 min (Actions precisa de scope `workflow` no token)
 - **Manter conectado** = JWT+cookie com TTL longo (30d); OTP continua obrigatório a cada novo login (não há “dispositivo confiável” na POC)
 - UX v0.3: hábitos em evidência; nav em hambúrguer; lembretes em `/app/lembretes`; SVG de arquitetura reescrito (GitHub rejeitava encoding corrompido)
+- UX v0.3.1: `SiteChrome` (logo + menu + footer) em todas as páginas; home autenticada via logo → `/app`; rodapé “Feito com ❤️ por Alamino Code Solutions”; Contrate-me com prefill de perfil
 
 ## Roteiro de leitura sugerido
 

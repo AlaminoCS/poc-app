@@ -1,11 +1,18 @@
 # Hábitos — POC Lab
 
-**Versão:** `0.3.0`
+**Versão:** `0.3.1`
 
 Aplicação de hábitos diários usada como **laboratório de engenharia com agentes de IA** (Cursor). O objetivo não é só “um CRUD online”: é deixar auditável *como* humano e agente colaboraram, quais decisões foram tomadas e por que certas medidas de arquitetura/segurança valem a pena.
 
 **Stack:** Next.js · NestJS · Prisma · Neon · Resend · Web Push · Cloudflare Turnstile · Docker · Vercel  
 **Repo:** [AlaminoCS/poc-app](https://github.com/AlaminoCS/poc-app) · **Web:** [poc.alamino.dev.br](https://poc.alamino.dev.br)
+
+## Novidades 0.3.1
+
+- Chrome único: logo **Hábitos** + menu hambúrguer em todas as páginas
+- Logo/Home leva a `/app` quando logado (não mais à landing deslogada)
+- Rodapé alinhado ao site pessoal (crédito Alamino Code Solutions → [alamino.dev.br](https://alamino.dev.br/)) + versão
+- Contrate-me: links públicos modernizados; formulário de mensagem pré-preenchido com nome/e-mail da sessão
 
 ## Novidades 0.3.0
 

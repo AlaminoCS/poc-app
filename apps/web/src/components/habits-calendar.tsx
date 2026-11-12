@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { DaySummaryDto, HabitDto } from "@poc/shared";
 import { api } from "@/lib/api/client";
-import { AppNav } from "@/components/app-nav";
 import { Skeleton } from "@/components/skeleton";
 
 function monthBounds(year: number, monthIndex: number) {
@@ -78,7 +77,6 @@ export function HabitsCalendar() {
 
   return (
     <div style={{ display: "grid", gap: "1.25rem" }} data-testid="habits-calendar">
-      <AppNav />
       <header
         className="panel fade-up"
         style={{

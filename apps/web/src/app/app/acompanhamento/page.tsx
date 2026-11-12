@@ -1,9 +1,10 @@
 import { HabitsCalendar } from "@/components/habits-calendar";
+import { SiteChrome } from "@/components/site-chrome";
 
 export default function AcompanhamentoPage() {
   return (
-    <main className="shell" style={{ padding: "2.5rem 0 4rem" }}>
+    <SiteChrome>
       <HabitsCalendar />
-    </main>
+    </SiteChrome>
   );
 }

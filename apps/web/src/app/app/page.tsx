@@ -1,9 +1,10 @@
 import { HabitsBoard } from "@/components/habits-board";
+import { SiteChrome } from "@/components/site-chrome";
 
 export default function AppPage() {
   return (
-    <main className="shell" style={{ padding: "2.5rem 0 4rem" }}>
+    <SiteChrome>
       <HabitsBoard />
-    </main>
+    </SiteChrome>
   );
 }

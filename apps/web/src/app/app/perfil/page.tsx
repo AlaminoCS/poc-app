@@ -1,9 +1,10 @@
 import { ProfileForm } from "@/components/profile-form";
+import { SiteChrome } from "@/components/site-chrome";
 
 export default function ProfilePage() {
   return (
-    <main className="shell" style={{ padding: "2.5rem 0 4rem", maxWidth: 640 }}>
+    <SiteChrome maxWidth={640}>
       <ProfileForm />
-    </main>
+    </SiteChrome>
   );
 }

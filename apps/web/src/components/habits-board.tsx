@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthUserResponse, HabitDto, HabitFrequency } from "@poc/shared";
 import { api } from "@/lib/api/client";
-import { AppNav } from "@/components/app-nav";
 import { HabitsBoardSkeleton } from "@/components/skeleton";
 import { vibrate } from "@/lib/vibrate";
 
@@ -88,28 +87,28 @@ export function HabitsBoard() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [menuOpenId]);
 
-  function easeInOutCubic(t: number) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function smoothScrollTo(el: HTMLElement, durationMs = 780) {
-    const top = el.getBoundingClientRect().top + window.scrollY - 24;
-    const start = window.scrollY;
-    const delta = top - start;
-    if (Math.abs(delta) < 2) return;
-    const startTime = performance.now();
-    function step(now: number) {
-      const t = Math.min(1, (now - startTime) / durationMs);
-      window.scrollTo(0, start + delta * easeInOutCubic(t));
-      if (t < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
   useEffect(() => {
     if (!scrollFormNonce) return;
     const el = formRef.current;
     if (!el) return;
+
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const smoothScrollTo = (node: HTMLElement, durationMs = 820) => {
+      const top = node.getBoundingClientRect().top + window.scrollY - 24;
+      const start = window.scrollY;
+      const delta = top - start;
+      if (Math.abs(delta) < 2) return;
+      const startTime = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - startTime) / durationMs);
+        window.scrollTo(0, start + delta * easeInOutCubic(t));
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
     const timer = window.setTimeout(() => {
       smoothScrollTo(el, 820);
       window.setTimeout(() => {
@@ -229,24 +228,14 @@ export function HabitsBoard() {
 
   return (
     <div style={{ display: "grid", gap: "1.25rem" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "0.75rem",
-          alignItems: "flex-start",
-        }}
-      >
-        <header className="fade-up" style={{ flex: 1, minWidth: 0 }}>
-          <div className="brand" style={{ fontSize: "1.8rem" }}>
-            Hábitos
-          </div>
-          <p className="muted" style={{ margin: "0.2rem 0 0" }} data-testid="app-greeting">
-            Olá, {greeting}
-          </p>
-        </header>
-        <AppNav />
-      </div>
+      <header className="fade-up">
+        <p className="muted" style={{ margin: 0 }} data-testid="app-greeting">
+          Olá, {greeting}
+        </p>
+        <h1 className="brand" style={{ margin: "0.2rem 0 0", fontSize: "1.65rem" }}>
+          Seus hábitos de hoje
+        </h1>
+      </header>
 
       {me?.isBirthdayToday ? (
         <div className="birthday-banner" data-testid="birthday-banner">
@@ -257,10 +246,7 @@ export function HabitsBoard() {
         </div>
       ) : null}
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", alignItems: "center" }}>
-        <h2 style={{ margin: 0, fontFamily: "var(--font-display)", fontSize: "1.15rem" }}>
-          Seus hábitos
-        </h2>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", alignItems: "center" }}>
         <button
           className="btn btn-primary"
           type="button"

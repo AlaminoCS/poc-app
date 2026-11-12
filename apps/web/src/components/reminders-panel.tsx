@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthUserResponse, HabitDto } from "@poc/shared";
 import { api } from "@/lib/api/client";
-import { AppNav } from "@/components/app-nav";
 import { Skeleton } from "@/components/skeleton";
 import { enablePushNotifications } from "@/lib/push";
 import { vibrate } from "@/lib/vibrate";
@@ -88,11 +87,10 @@ export function RemindersPanel() {
 
   return (
     <div style={{ display: "grid", gap: "1.25rem" }}>
-      <AppNav />
       <header>
-        <div className="brand" style={{ fontSize: "1.8rem" }}>
+        <h1 className="brand" style={{ margin: 0, fontSize: "1.8rem" }}>
           Lembretes
-        </div>
+        </h1>
         <p className="muted" style={{ margin: "0.35rem 0 0" }}>
           Ative o navegador e escolha quais hábitos devem lembrar você.
           {me?.notificationsEnabled ? " Push ativo nesta sessão." : ""}

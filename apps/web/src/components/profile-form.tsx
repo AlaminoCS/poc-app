@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthUserResponse } from "@poc/shared";
 import { api } from "@/lib/api/client";
-import { AppNav } from "@/components/app-nav";
 import { PasswordField } from "@/components/password-field";
 import { Skeleton } from "@/components/skeleton";
 
@@ -97,7 +96,6 @@ export function ProfileForm() {
 
   return (
     <div style={{ display: "grid", gap: "1.25rem" }}>
-      <AppNav />
       <form
         className="panel fade-up"
         onSubmit={onSaveProfile}

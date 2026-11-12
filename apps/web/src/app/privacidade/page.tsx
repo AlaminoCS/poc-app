@@ -1,11 +1,9 @@
 import Link from "next/link";
+import { SiteChrome } from "@/components/site-chrome";
 
 export default function PrivacidadePage() {
   return (
-    <main className="shell" style={{ padding: "3rem 0 5rem", maxWidth: 760 }}>
-      <Link href="/" className="brand" style={{ display: "inline-block", marginBottom: "1.5rem", fontSize: "1.3rem" }}>
-        Hábitos
-      </Link>
+    <SiteChrome maxWidth={760} padding="1.25rem 0 3rem">
       <article className="panel" style={{ padding: "1.75rem", display: "grid", gap: "1rem", lineHeight: 1.55 }}>
         <h1 className="brand" style={{ margin: 0, fontSize: "2rem" }}>
           Política LGPD e privacidade
@@ -97,6 +95,6 @@ export default function PrivacidadePage() {
           Texto informativo. Em caso de dúvida jurídica específica, consulte um profissional habilitado.
         </p>
       </article>
-    </main>
+    </SiteChrome>
   );
 }
