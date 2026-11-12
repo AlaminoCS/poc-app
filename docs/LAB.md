@@ -50,6 +50,7 @@ POC construída como evidência de colaboração **humano + agente** (Cursor). D
 - UX v0.3: hábitos em evidência; nav em hambúrguer; lembretes em `/app/lembretes`; SVG de arquitetura reescrito (GitHub rejeitava encoding corrompido)
 - UX v0.3.1: `SiteChrome` (logo + menu + footer) em todas as páginas; home autenticada via logo → `/app`; rodapé “Feito com ❤️ por Alamino Code Solutions”; Contrate-me com prefill de perfil
 - Gutter: `.shell` usa `padding-inline` + `--shell-gutter`; **nunca** aplicar `style.padding` shorthand no `main` (ex.: `1.35rem 0 3rem`) — zera o gutter. `SiteChrome` só seta `paddingBlock` + `paddingInline` explícito
+- Menus overlay (hambúrguer + kebab): fundo opaco `#0c1422`, sem `panel`/glass; itens com padding generoso; destrutivo (Sair/Remover) em tom rosa com separador
 
 ## Roteiro de leitura sugerido
 

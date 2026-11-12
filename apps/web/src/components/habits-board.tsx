@@ -358,7 +358,7 @@ export function HabitsBoard() {
                 </button>
                 {menuOpenId === habit.id ? (
                   <div
-                    className="panel habit-kebab"
+                    className="habit-kebab"
                     role="menu"
                     data-testid={`habit-menu-panel-${habit.id}`}
                   >
@@ -377,7 +377,7 @@ export function HabitsBoard() {
                     <button
                       type="button"
                       role="menuitem"
-                      className="habit-kebab-item"
+                      className="habit-kebab-item is-danger"
                       disabled={busyId === habit.id}
                       data-testid={`habit-delete-${habit.id}`}
                       onClick={() => void onDelete(habit.id)}
